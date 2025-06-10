@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Card, CardContent } from "@/components/ui/card"
 import { Loader2 } from "lucide-react"
+import { toast } from "sonner"
 
 export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false)
@@ -29,15 +30,32 @@ export function LoginForm() {
 
     setIsLoading(true)
 
-    // Simulate authentication
     try {
-      // In a real app, this would be an API call to authenticate
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ email, password }),
+        headers: { "Content-Type": "application/json" },
+      })
 
-      // Simulate successful login
+      const result = await res.json()
+
+      if (!res.ok) {
+        const message = result.error || result.message || "Login failed"
+        setError(message)
+        toast.error(message)
+        return
+      }
+
+      // Save login state (temporary localStorage for now)
+      localStorage.setItem("user", JSON.stringify(result))
+
+      toast.success("Login successful!")
       router.push("/dashboard")
     } catch (err) {
-      setError("Invalid email or password")
+      console.error(err)
+      const message = "Login failed. Please try again."
+      setError(message)
+      toast.error(message)
     } finally {
       setIsLoading(false)
     }
