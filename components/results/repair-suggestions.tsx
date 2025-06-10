@@ -1,3 +1,5 @@
+"use client"
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -41,6 +43,16 @@ export function RepairSuggestions({ id }: { id: string }) {
     },
   ]
 
+  const handleExport = () => {
+    const blob = new Blob([JSON.stringify(repairs, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "repair_guide.json";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
   return (
     <Card className="bg-[#1A2035] border-[#00E5E5]/30 mb-8">
       <CardHeader className="pb-2">
@@ -49,7 +61,7 @@ export function RepairSuggestions({ id }: { id: string }) {
             <Wrench className="h-5 w-5 text-[#B347FF] mr-2" />
             Repair Suggestions
           </CardTitle>
-          <Button variant="outline" className="border-[#B347FF] text-[#B347FF] hover:bg-[#B347FF]/10">
+          <Button onClick={handleExport} variant="outline" className="border-[#B347FF] text-[#B347FF] hover:bg-[#B347FF]/10">
             <Download className="h-4 w-4 mr-2" />
             Export Repair Guide
           </Button>

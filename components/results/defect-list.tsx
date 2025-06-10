@@ -65,7 +65,7 @@ export function DefectList({ id }: { id: string }) {
       <CardContent>
         <div className="space-y-4">
           {defects.map((defect) => (
-            <div key={defect.id} className="p-4 bg-[#0F172A] rounded-lg border border-[#00E5E5]/20">
+            <div key={defect.id} className="p-4 bg-[#0F172A] rounded-lg border border-[#00E5E5]/20 transition hover:scale-[1.01] hover:border-[#00E5E5]/40">
               <div className="flex items-start justify-between mb-2">
                 <div className="flex items-center">
                   {getSeverityIcon(defect.severity)}
