@@ -21,6 +21,7 @@ export default function RootLayout({
       <body className={`${inter.className} bg-[#0F172A] text-white antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange>
           {children}
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>
@@ -30,3 +31,4 @@ export default function RootLayout({
 
 
 import './globals.css'
+import { Toaster } from "@/components/ui/sonner"

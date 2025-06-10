@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Card, CardContent } from "@/components/ui/card"
 import { Loader2 } from "lucide-react"
+import { toast } from "sonner"
 
 export function SignupForm() {
   const [isLoading, setIsLoading] = useState(false)
@@ -38,13 +39,26 @@ export function SignupForm() {
 
     // Simulate registration
     try {
-      // In a real app, this would be an API call to register
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        body: JSON.stringify({ name, email, password }),
+        headers: { "Content-Type": "application/json" },
+      });
 
-      // Simulate successful registration
-      router.push("/dashboard")
+      const result = await res.json();
+
+      if (!res.ok) {
+        const message = result.error || result.message || "Something went wrong. Please try again.";
+        toast.error(message);
+      } else {
+        toast.success("Account created!");
+        router.push("/dashboard")
+      }
     } catch (err) {
-      setError("Registration failed. Please try again.")
+      console.error(err)
+      const message = "Registration failed. Please try again."
+      setError(message)
+      toast.error(message)
     } finally {
       setIsLoading(false)
     }
