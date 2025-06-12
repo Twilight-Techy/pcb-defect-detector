@@ -6,6 +6,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Upload, CheckCircle, Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 
 export function UploadSection() {
   const [isDragging, setIsDragging] = useState(false)
@@ -49,16 +50,41 @@ export function UploadSection() {
     }
   }
 
-  const handleAnalyze = () => {
-    // Show loading state
+  const handleAnalyze = async () => {
+    if (!file) return
     setIsLoading(true)
 
-    // In a real app, we would upload the file to the server
-    // For now, we'll simulate a loading state and then navigate
-    setTimeout(() => {
+    const user = JSON.parse(localStorage.getItem("user")!)
+
+    const formData = new FormData()
+    formData.append("file", file)
+    formData.append("userId", user.id)
+
+    try {
+      const res = await fetch("/api/analyze", {
+        method: "POST",
+        body: formData,
+      })
+      let data: any = {};
+      const contentType = res.headers.get("Content-Type");
+
+      if (contentType && contentType.includes("application/json")) {
+        data = await res.json();
+      }
+
+      if (!res.ok) {
+        toast.error(data.error || data.message || "Something went wrong")
+      }
+
+      // Navigate to results page with the data (optional: save in local storage or pass via query)
+      localStorage.setItem("analysis_result", JSON.stringify(data))
+      router.push(`/results/${data.predictionId}`)
+    } catch (err: any) {
+      console.error(err)
+      alert(err.message || "Analysis failed")
+    } finally {
       setIsLoading(false)
-      router.push("/results/demo-123")
-    }, 1500)
+    }
   }
 
   return (
