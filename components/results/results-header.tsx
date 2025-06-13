@@ -4,16 +4,16 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Download, Share2, Clock, CircuitBoard } from "lucide-react"
 
-export function ResultsHeader({ id }: { id: string }) {
-  // In a real app, we would fetch this data based on the ID
-  const result = {
-    name: "Main Controller PCB",
-    timestamp: "April 1, 2025 - 09:35 AM",
-    defects: 3,
-    severity: "Critical",
-    status: "Completed",
-  }
+type ResultsHeaderProps = {
+  id: string
+  name: string
+  createdAt: string
+  defectsCount: number
+  severity: "Low" | "Medium" | "High" | "Critical"
+  status: "Pending" | "Processing" | "Completed" | "Failed"
+}
 
+export function ResultsHeader({ id, name, createdAt, defectsCount, severity, status }: ResultsHeaderProps) {
   return (
     <div className="mb-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
@@ -21,13 +21,13 @@ export function ResultsHeader({ id }: { id: string }) {
           <h1 className="text-3xl font-bold text-[#00E5E5] mb-2">Analysis Results</h1>
           <div className="flex items-center text-gray-400 mb-2">
             <CircuitBoard className="h-4 w-4 mr-2" />
-            <span className="font-medium text-white">{result.name}</span>
+            <span className="font-medium text-white">{name}</span>
             <span className="mx-2">•</span>
             <span className="text-sm">ID: {id}</span>
           </div>
           <div className="flex items-center text-gray-400">
             <Clock className="h-4 w-4 mr-2" />
-            <span>{result.timestamp}</span>
+            <span>{new Date(createdAt).toLocaleString()}</span>
           </div>
         </div>
 
@@ -36,7 +36,7 @@ export function ResultsHeader({ id }: { id: string }) {
             variant="outline"
             className="border-[#00E5E5] text-[#00E5E5] hover:bg-[#00E5E5]/10"
             onClick={() => {
-              // In a real app, this would open a share dialog or copy a link
+              navigator.clipboard.writeText(`https://pcbdetect.com/results/${id}`)
               alert(`Share link copied: https://pcbdetect.com/results/${id}`)
             }}
           >
@@ -46,20 +46,17 @@ export function ResultsHeader({ id }: { id: string }) {
           <Button
             className="bg-[#B347FF] hover:bg-[#B347FF]/80 text-white"
             onClick={() => {
-              // Create a PDF-like report (in this case, we'll use a CSV as a simple example)
               const reportData = [
                 ["PCB Analysis Report"],
                 ["ID", id],
-                ["Name", result.name],
-                ["Timestamp", result.timestamp],
-                ["Defects", result.defects.toString()],
-                ["Severity", result.severity],
-                ["Status", result.status],
+                ["Name", name],
+                ["Timestamp", new Date(createdAt).toLocaleString()],
+                ["Defects", defectsCount.toString()],
+                ["Severity", severity],
+                ["Status", status],
               ]
 
               const csvContent = reportData.map((row) => row.join(",")).join("\n")
-
-              // Create a blob and download it
               const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
               const url = URL.createObjectURL(blob)
               const link = document.createElement("a")
@@ -78,9 +75,9 @@ export function ResultsHeader({ id }: { id: string }) {
       </div>
 
       <div className="flex flex-wrap gap-3 mt-4">
-        <Badge className="bg-[#00E5E5]/10 text-[#00E5E5] border-[#00E5E5]/20">Status: {result.status}</Badge>
-        <Badge className="bg-red-500/10 text-red-500 border-red-500/20">Defects: {result.defects}</Badge>
-        <Badge className="bg-red-500/10 text-red-500 border-red-500/20">Severity: {result.severity}</Badge>
+        <Badge className="bg-[#00E5E5]/10 text-[#00E5E5] border-[#00E5E5]/20">Status: {status}</Badge>
+        <Badge className="bg-red-500/10 text-red-500 border-red-500/20">Defects: {defectsCount}</Badge>
+        <Badge className="bg-red-500/10 text-red-500 border-red-500/20">Severity: {severity}</Badge>
       </div>
     </div>
   )

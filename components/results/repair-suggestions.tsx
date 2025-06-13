@@ -5,52 +5,40 @@ import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Wrench, Lightbulb, ArrowRight, Download } from "lucide-react"
 
-export function RepairSuggestions({ id }: { id: string }) {
-  // Mock repair data - in a real app, this would come from the API
-  const repairs = [
-    {
-      defectId: 1,
-      defectType: "Solder Bridge",
-      suggestions: [
-        "Use a soldering iron with a fine tip and flux to carefully remove the excess solder",
-        "Apply desoldering braid to wick away the bridging solder",
-        "Clean the area with isopropyl alcohol after repair to remove flux residue",
-      ],
-      toolsNeeded: ["Fine-tip soldering iron", "Flux", "Desoldering braid", "Isopropyl alcohol"],
-      estimatedTime: "5-10 minutes",
-    },
-    {
-      defectId: 2,
-      defectType: "Missing Component",
-      suggestions: [
-        "Verify the BOM (Bill of Materials) to confirm the correct component (U3 - Microcontroller)",
-        "Check for the component in the pick-and-place machine's feeders or in inventory",
-        "Place and solder the component according to the orientation marked on the PCB",
-      ],
-      toolsNeeded: ["Tweezers", "Soldering iron", "Solder paste", "Magnifying glass"],
-      estimatedTime: "15-20 minutes",
-    },
-    {
-      defectId: 3,
-      defectType: "Misalignment",
-      suggestions: [
-        "Carefully reheat the solder joints of capacitor C22",
-        "Use tweezers to adjust the component while the solder is molten",
-        "Allow to cool without disturbance to ensure proper alignment",
-      ],
-      toolsNeeded: ["Soldering iron", "Tweezers", "Magnifying glass"],
-      estimatedTime: "3-5 minutes",
-    },
-  ]
+interface RepairSuggestion {
+  defectId: number
+  defectType: string
+  suggestions: string[]
+  toolsNeeded: string[]
+  estimatedTime: string
+}
 
+interface RepairSuggestionsProps {
+  id: string
+  repairs: RepairSuggestion[]
+}
+
+export function RepairSuggestions({ id, repairs }: RepairSuggestionsProps) {
   const handleExport = () => {
-    const blob = new Blob([JSON.stringify(repairs, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "repair_guide.json";
-    a.click();
-    URL.revokeObjectURL(url);
+    const blob = new Blob([JSON.stringify(repairs, null, 2)], { type: "application/json" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = "repair_guide.json"
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  if (!repairs || repairs.length === 0) {
+    repairs = [
+      {
+        defectId: 0,
+        defectType: "No Repairs Needed",
+        suggestions: ["No repairs are required for this PCB."],
+        toolsNeeded: [],
+        estimatedTime: "N/A",
+      },
+    ] // Fallback for no repairs 
   }
 
   return (
@@ -121,4 +109,3 @@ export function RepairSuggestions({ id }: { id: string }) {
     </Card>
   )
 }
-

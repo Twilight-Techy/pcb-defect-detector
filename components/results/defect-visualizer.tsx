@@ -6,18 +6,27 @@ import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ZoomIn, ZoomOut, RotateCcw, Eye, EyeOff, Layers } from "lucide-react"
 
-export function DefectVisualizer({ id }: { id: string }) {
+type Defect = {
+  id: number
+  x: number
+  y: number
+  width: number
+  height: number
+  type: string
+  confidence: number
+}
+
+interface DefectVisualizerProps {
+  id: string
+  imageUrl: string
+  defects: Defect[]
+}
+
+export function DefectVisualizer({ id, imageUrl, defects }: DefectVisualizerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [activeTab, setActiveTab] = useState("original")
   const [showBoundingBoxes, setShowBoundingBoxes] = useState(true)
   const [zoom, setZoom] = useState(1)
-
-  // Mock defect data - in a real app, this would come from the API
-  const defects = [
-    { id: 1, x: 120, y: 80, width: 60, height: 40, type: "Solder Bridge", confidence: 0.92 },
-    { id: 2, x: 220, y: 150, width: 30, height: 30, type: "Missing Component", confidence: 0.87 },
-    { id: 3, x: 350, y: 200, width: 45, height: 25, type: "Misalignment", confidence: 0.79 },
-  ]
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -26,39 +35,30 @@ export function DefectVisualizer({ id }: { id: string }) {
     const ctx = canvas.getContext("2d")
     if (!ctx) return
 
-    // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-    // Load and draw the PCB image
     const img = new Image()
     img.crossOrigin = "anonymous"
-    img.src = "/placeholder.svg?height=400&width=600" // Replace with actual PCB image
+    img.src = imageUrl || "/placeholder.svg?height=400&width=600"
 
     img.onload = () => {
-      // Apply zoom
       ctx.save()
       ctx.scale(zoom, zoom)
-
-      // Draw the image
       ctx.drawImage(img, 0, 0, canvas.width / zoom, canvas.height / zoom)
 
-      // Draw bounding boxes if enabled
       if (showBoundingBoxes && activeTab !== "gradcam") {
         defects.forEach((defect) => {
           ctx.strokeStyle = "#FF5733"
           ctx.lineWidth = 2 / zoom
           ctx.strokeRect(defect.x / zoom, defect.y / zoom, defect.width / zoom, defect.height / zoom)
 
-          // Add label
           ctx.fillStyle = "#FF5733"
           ctx.font = `${12 / zoom}px sans-serif`
           ctx.fillText(`${defect.type} (${Math.round(defect.confidence * 100)}%)`, defect.x / zoom, defect.y / zoom - 5)
         })
       }
 
-      // Draw Grad-CAM visualization if on that tab
       if (activeTab === "gradcam") {
-        // Simulate Grad-CAM heatmap
         defects.forEach((defect) => {
           const gradient = ctx.createRadialGradient(
             defect.x / zoom + defect.width / (2 * zoom),
@@ -68,11 +68,9 @@ export function DefectVisualizer({ id }: { id: string }) {
             defect.y / zoom + defect.height / (2 * zoom),
             defect.width / zoom,
           )
-
           gradient.addColorStop(0, "rgba(255, 87, 51, 0.7)")
           gradient.addColorStop(0.7, "rgba(255, 165, 0, 0.5)")
           gradient.addColorStop(1, "rgba(0, 0, 0, 0)")
-
           ctx.fillStyle = gradient
           ctx.fillRect(
             defect.x / zoom - defect.width / (2 * zoom),
@@ -85,24 +83,16 @@ export function DefectVisualizer({ id }: { id: string }) {
 
       ctx.restore()
     }
-  }, [activeTab, showBoundingBoxes, zoom, id])
+  }, [activeTab, showBoundingBoxes, zoom, id, imageUrl, defects])
 
-  const handleZoomIn = () => {
-    setZoom((prev) => Math.min(prev + 0.25, 3))
-  }
-
-  const handleZoomOut = () => {
-    setZoom((prev) => Math.max(prev - 0.25, 0.5))
-  }
-
-  const handleReset = () => {
-    setZoom(1)
-  }
+  const handleZoomIn = () => setZoom((prev) => Math.min(prev + 0.25, 3))
+  const handleZoomOut = () => setZoom((prev) => Math.max(prev - 0.25, 0.5))
+  const handleReset = () => setZoom(1)
 
   return (
     <Card className="bg-[#1A2035] border-[#00E5E5]/30">
       <CardContent className="p-6">
-        <Tabs defaultValue="original" value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs defaultValue="original" value={activeTab} onValueChange={setActiveTab}>
           <div className="flex justify-between items-center mb-4">
             <TabsList className="bg-[#0F172A]">
               <TabsTrigger value="original" className="data-[state=active]:bg-[#00E5E5] data-[state=active]:text-black">
@@ -117,28 +107,13 @@ export function DefectVisualizer({ id }: { id: string }) {
             </TabsList>
 
             <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-8 w-8 border-[#00E5E5]/30 text-[#00E5E5]"
-                onClick={handleZoomOut}
-              >
+              <Button variant="outline" size="icon" className="h-8 w-8 border-[#00E5E5]/30 text-[#00E5E5]" onClick={handleZoomOut}>
                 <ZoomOut className="h-4 w-4" />
               </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-8 w-8 border-[#00E5E5]/30 text-[#00E5E5]"
-                onClick={handleZoomIn}
-              >
+              <Button variant="outline" size="icon" className="h-8 w-8 border-[#00E5E5]/30 text-[#00E5E5]" onClick={handleZoomIn}>
                 <ZoomIn className="h-4 w-4" />
               </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-8 w-8 border-[#00E5E5]/30 text-[#00E5E5]"
-                onClick={handleReset}
-              >
+              <Button variant="outline" size="icon" className="h-8 w-8 border-[#00E5E5]/30 text-[#00E5E5]" onClick={handleReset}>
                 <RotateCcw className="h-4 w-4" />
               </Button>
               <Button
@@ -158,14 +133,13 @@ export function DefectVisualizer({ id }: { id: string }) {
 
           <div className="relative bg-black rounded-md overflow-hidden">
             <canvas ref={canvasRef} width={600} height={400} className="w-full h-auto" />
-
             <div className="absolute bottom-3 right-3 bg-[#0F172A]/80 text-white text-xs px-2 py-1 rounded flex items-center">
               <Layers className="h-3 w-3 mr-1" />
               {activeTab === "original"
                 ? "Original Image"
                 : activeTab === "defects"
-                  ? "Defect Detection"
-                  : "Explainable AI"}
+                ? "Defect Detection"
+                : "Explainable AI"}
               {zoom !== 1 && ` (${zoom}x)`}
             </div>
           </div>
@@ -174,4 +148,3 @@ export function DefectVisualizer({ id }: { id: string }) {
     </Card>
   )
 }
-
