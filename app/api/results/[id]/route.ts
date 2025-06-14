@@ -9,7 +9,7 @@ export async function GET(
     const { id } = params
 
     try {
-        const prediction = await prisma.prediction.findUnique({
+        const prediction = await prisma.analysis.findUnique({
             where: { id },
             include: {
                 defects: true,

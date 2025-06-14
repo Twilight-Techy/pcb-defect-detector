@@ -76,6 +76,8 @@ export async function POST(req: Request) {
 
         return {
             name: pred.class,
+            location: meta.location || "Unknown",
+            description: meta.description || "No description available.",
             severity,
             confidence: pred.confidence,
             x: pred.x,

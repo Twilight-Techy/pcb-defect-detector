@@ -73,12 +73,12 @@ export function UploadSection() {
       }
 
       if (!res.ok) {
-        toast.error(data.error || data.message || "Something went wrong")
+        toast.error(data.error || data.message || "Something went wrong1")
+      } else {
+        toast.success("Analysis completed successfully!")
+        console.log("Redirecting to:", `/results/${data.predictionId}`)
+        router.push(`/results/${data.predictionId}`)
       }
-
-      // Navigate to results page with the data (optional: save in local storage or pass via query)
-      localStorage.setItem("analysis_result", JSON.stringify(data))
-      router.push(`/results/${data.predictionId}`)
     } catch (err: any) {
       console.error(err)
       alert(err.message || "Analysis failed")

@@ -25,7 +25,7 @@ model Analysis {
   severity        String           // e.g., "Low", "Medium", "High"
   status          String           // e.g., "Pending Review", "Complete"
   processingTime  Float
-  imageUrl        String           // original image
+  imageUrl        String           // Original Image
   overview        String           // General Overview
   technical       String           // Technical Overview
   rawResponse     Json
@@ -39,8 +39,10 @@ model Analysis {
 model DetectedDefect {
   id              String   @id @default(uuid())
   name            String   // class or label
-  repairSteps     Json     // added: array of steps
-  requiredTools   Json     // added: array of tools
+   location        String  // location of the defect
+  description     String   // description of the defect
+  repairSteps     Json     // array of steps
+  requiredTools   Json     // array of tools
   severity        String   // added: e.g., "Low", "Critical"
 
   x               Float
