@@ -38,7 +38,7 @@ export function AnalysisUploader() {
     }
   }
 
-  const handleUrlSubmit = (e: React.FormEvent) => {
+  const handleUrlSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
 
@@ -47,25 +47,81 @@ export function AnalysisUploader() {
       return
     }
 
-    // In a real app, we would validate the URL and fetch the image
-    // For now, we'll just simulate loading and success
+    // Optional: Validate URL format
+    try {
+      new URL(url)
+    } catch {
+      setError("Invalid URL format")
+      return
+    }
+
     setIsLoading(true)
-    setTimeout(() => {
+
+    try {
+      // Attempt to fetch the image to ensure it exists
+      const res = await fetch(url, { method: "HEAD" })
+      const contentType = res.headers.get("content-type") || ""
+
+      if (!res.ok || !contentType.startsWith("image/")) {
+        throw new Error("URL must point to an image")
+      }
+
+      // If all good, set preview and clear file input
+      setPreview(url)
+      setFile(null)
+    } catch (err: any) {
+      console.error("Error fetching image:", err)
+      setError("Failed to load image. Make sure the URL points to a valid image.")
+    } finally {
       setIsLoading(false)
-      // Use a placeholder image for demo
-      setPreview("/placeholder.svg?height=400&width=600")
-      setFile(null) // Not a real file, but we're using a URL
-    }, 1500)
+    }
   }
 
-  const handleAnalyze = () => {
-    // In a real app, we would upload the file to the server
-    // For now, we'll just navigate to a mock results page
+  const handleAnalyze = async () => {
     setIsLoading(true)
-    setTimeout(() => {
+    setError("")
+
+    try {
+      let res
+
+      if (file) {
+        const formData = new FormData()
+        const user = JSON.parse(localStorage.getItem("user")!)
+        formData.append("file", file)
+        formData.append("userId", user.id)
+
+        res = await fetch("/api/analyze", {
+          method: "POST",
+          body: formData,
+        })
+      } else if (url) {
+        const user = JSON.parse(localStorage.getItem("user")!)
+        res = await fetch("/api/analyze", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ imageUrl: url, userId: user.id }),
+        })
+      } else {
+        setError("No image selected or URL provided")
+        setIsLoading(false)
+        return
+      }
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.error || "Analysis failed")
+      }
+
+      router.push(`/results/${data.predictionId}`)
+    } catch (err: any) {
+      console.error(err)
+      setError(err.message || "Something went wrong")
+    } finally {
       setIsLoading(false)
-      router.push("/results/demo-123")
-    }, 2000)
+    }
   }
 
   return (

@@ -3,19 +3,33 @@ import { put } from "@vercel/blob"
 import { prisma } from "@/lib/prisma"
 
 export async function POST(req: Request) {
-    const formData = await req.formData()
-    const file = formData.get("file") as File
-    const userId = formData.get("userId") as string
+    const contentType = req.headers.get("content-type")
 
-    if (!file) return NextResponse.json({ error: "No file uploaded" }, { status: 400 })
-    if (!userId) return NextResponse.json({ error: "No user ID provided" }, { status: 401 })
+    let imageUrl: string
+    let userId: string | null = null
 
-    const blob = await put(file.name, file, {
-        access: "public",
-        addRandomSuffix: true,
-    })
+    if (contentType?.includes("multipart/form-data")) {
+        const formData = await req.formData()
+        const file = formData.get("file") as File
+        userId = formData.get("userId") as string
 
-    const imageUrl = blob.url
+        if (!file) return NextResponse.json({ error: "No file uploaded" }, { status: 400 })
+        if (!userId) return NextResponse.json({ error: "No user ID provided" }, { status: 401 })
+
+        const blob = await put(file.name, file, {
+            access: "public",
+            addRandomSuffix: true,
+        })
+
+        imageUrl = blob.url
+    } else {
+        const json = await req.json()
+        imageUrl = json.imageUrl
+        userId = json.userId
+
+        if (!imageUrl) return NextResponse.json({ error: "Missing image URL or user ID" }, { status: 400 })
+        if (!userId) return NextResponse.json({ error: "No user ID provided" }, { status: 401 })
+    }
 
     const start = performance.now()
 
