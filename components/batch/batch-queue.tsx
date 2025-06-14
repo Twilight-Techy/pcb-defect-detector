@@ -1,80 +1,62 @@
 "use client"
 
-import { useState } from "react"
+import { type Dispatch, type SetStateAction } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Clock, CheckCircle, AlertTriangle, Loader2, XCircle, RefreshCw } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
 
-export function BatchQueue() {
-  // In a real app, this would come from a server/API
-  const [queueItems, setQueueItems] = useState([
-    {
-      id: "batch-1",
-      name: "Main_Controller_PCB.jpg",
-      status: "processing",
-      progress: 65,
-    },
-    {
-      id: "batch-2",
-      name: "Power_Supply_Unit.jpg",
-      status: "queued",
-      progress: 0,
-    },
-    {
-      id: "batch-3",
-      name: "Sensor_Array_v2.jpg",
-      status: "queued",
-      progress: 0,
-    },
-    {
-      id: "batch-4",
-      name: "LED_Controller.jpg",
-      status: "completed",
-      progress: 100,
-      result: { defects: 2, severity: "Moderate" },
-    },
-    {
-      id: "batch-5",
-      name: "Motor_Driver_Board.jpg",
-      status: "failed",
-      progress: 30,
-      error: "Image resolution too low for accurate analysis",
-    },
-  ])
+export type QueueItem = {
+  id: string
+  name: string
+  status: "Queued" | "Processing" | "Completed" | "Failed"
+  progress: number
+  error?: string
+  result?: {
+    defects: number
+    severity: "Critical" | "Moderate" | "Minor" | "None"
+  }
+  timestamp?: string
+}
 
-  const getStatusIcon = (status: string) => {
+type BatchQueueProps = {
+  queueItems: QueueItem[]
+  setQueueItems: Dispatch<SetStateAction<QueueItem[]>>
+}
+
+export function BatchQueue({ queueItems, setQueueItems }: BatchQueueProps) {
+  const getStatusIcon = (status: QueueItem["status"]) => {
     switch (status) {
-      case "queued":
+      case "Queued":
         return <Clock className="h-5 w-5 text-gray-400" />
-      case "processing":
+      case "Processing":
         return <Loader2 className="h-5 w-5 text-[#00E5E5] animate-spin" />
-      case "completed":
+      case "Completed":
         return <CheckCircle className="h-5 w-5 text-green-500" />
-      case "failed":
+      case "Failed":
         return <XCircle className="h-5 w-5 text-red-500" />
       default:
         return <Clock className="h-5 w-5 text-gray-400" />
     }
   }
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: QueueItem["status"]) => {
     switch (status) {
-      case "queued":
+      case "Queued":
         return <Badge className="bg-gray-500/10 text-gray-400 border-gray-500/20">Queued</Badge>
-      case "processing":
+      case "Processing":
         return <Badge className="bg-[#00E5E5]/10 text-[#00E5E5] border-[#00E5E5]/20">Processing</Badge>
-      case "completed":
+      case "Completed":
         return <Badge className="bg-green-500/10 text-green-500 border-green-500/20">Completed</Badge>
-      case "failed":
+      case "Failed":
         return <Badge className="bg-red-500/10 text-red-500 border-red-500/20">Failed</Badge>
       default:
         return <Badge className="bg-gray-500/10 text-gray-400 border-gray-500/20">Unknown</Badge>
     }
   }
 
-  const getSeverityBadge = (severity: string) => {
+  const getSeverityBadge = (severity?: string) => {
     switch (severity) {
       case "Critical":
         return <Badge className="bg-red-500/10 text-red-500 border-red-500/20">Critical</Badge>
@@ -89,26 +71,28 @@ export function BatchQueue() {
     }
   }
 
-  // Simulate refreshing the queue
   const refreshQueue = () => {
-    // In a real app, this would fetch the latest queue from the server
-    setQueueItems((prev) => {
-      return prev.map((item) => {
-        if (item.status === "processing") {
-          const newProgress = Math.min(item.progress + 15, 100)
+    setQueueItems((prev) =>
+      prev.map((item) => {
+        if (item.status === "Processing") {
+          const newProgress = Math.min(item.progress + 10, 100)
           return {
             ...item,
             progress: newProgress,
-            status: newProgress === 100 ? "completed" : "processing",
-            result: newProgress === 100 ? { defects: Math.floor(Math.random() * 3), severity: "Moderate" } : undefined,
+            status: newProgress === 100 ? "Completed" : "Processing",
+            result: newProgress === 100
+              ? {
+                  defects: Math.floor(Math.random() * 3),
+                  severity: ["None", "Minor", "Moderate", "Critical"][
+                    Math.floor(Math.random() * 4)
+                  ] as "None" | "Minor" | "Moderate" | "Critical",
+                }
+              : item.result,
           }
-        }
-        if (item.status === "queued" && prev.filter((i) => i.status === "processing").length < 2) {
-          return { ...item, status: "processing", progress: 10 }
         }
         return item
       })
-    })
+    )
   }
 
   return (
@@ -141,21 +125,25 @@ export function BatchQueue() {
                   </div>
                   <div className="flex items-center space-x-2">
                     {getStatusBadge(item.status)}
-                    {item.status === "completed" && item.result && getSeverityBadge(item.result.severity)}
+                    {item.status === "Completed" && getSeverityBadge(item.result?.severity)}
                   </div>
                 </div>
 
-                {item.status === "processing" && (
+                {item.status === "Processing" && (
                   <div className="space-y-1">
                     <div className="flex justify-between text-xs">
                       <span className="text-gray-400">Processing...</span>
                       <span className="text-[#00E5E5]">{item.progress}%</span>
                     </div>
-                    <Progress value={item.progress} className="h-1.5 bg-[#1A2035]" indicatorClassName="bg-[#00E5E5]" />
+                    <Progress
+                      value={item.progress}
+                      className="h-1.5 bg-[#1A2035]"
+                      indicatorClassName="bg-[#00E5E5]"
+                    />
                   </div>
                 )}
 
-                {item.status === "completed" && item.result && (
+                {item.status === "Completed" && item.result && (
                   <div className="text-sm text-gray-300 flex items-center">
                     <AlertTriangle className="h-4 w-4 text-orange-500 mr-2" />
                     <span>{item.result.defects} defects detected</span>
@@ -163,7 +151,6 @@ export function BatchQueue() {
                       variant="link"
                       className="text-[#B347FF] p-0 h-auto ml-2"
                       onClick={() => {
-                        // Navigate to results page
                         window.location.href = `/results/${item.id}`
                       }}
                     >
@@ -172,7 +159,7 @@ export function BatchQueue() {
                   </div>
                 )}
 
-                {item.status === "failed" && item.error && (
+                {item.status === "Failed" && item.error && (
                   <div className="text-sm text-red-400">Error: {item.error}</div>
                 )}
               </div>
@@ -183,4 +170,3 @@ export function BatchQueue() {
     </Card>
   )
 }
-

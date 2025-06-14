@@ -1,208 +1,170 @@
 "use client"
 
-import type React from "react"
-
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Upload, FileText, X, AlertCircle } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
+import { UploadCloud } from "lucide-react"
+import { QueueItem } from "./batch-queue"
 
-export function BatchUploader() {
-  const [files, setFiles] = useState<File[]>([])
-  const [isDragging, setIsDragging] = useState(false)
-  const [uploading, setUploading] = useState(false)
-  const [uploadProgress, setUploadProgress] = useState(0)
-  const [error, setError] = useState("")
+type Props = {
+  queueItems: QueueItem[]
+  setQueueItems: React.Dispatch<React.SetStateAction<QueueItem[]>>
+  setBatchResults: React.Dispatch<React.SetStateAction<QueueItem[]>>
+}
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault()
-    setIsDragging(true)
-  }
+export function BatchUploader({ queueItems, setQueueItems, setBatchResults }: Props) {
+  const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files
+    if (!files || files.length === 0) return
 
-  const handleDragLeave = () => {
-    setIsDragging(false)
-  }
+    const newQueueItems: QueueItem[] = Array.from(files).map((file) => ({
+      id: `batch-${Date.now()}-${file.name}`,
+      name: file.name,
+      status: "Queued",
+      progress: 0,
+    }))
+    setQueueItems((prev) => [...prev, ...newQueueItems])
 
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault()
-    setIsDragging(false)
+    for (const file of files) {
+      const formData = new FormData()
+      formData.append("image", file)
 
-    if (e.dataTransfer.files) {
-      const newFiles = Array.from(e.dataTransfer.files).filter((file) => file.type.startsWith("image/"))
+      const itemId = `batch-${Date.now()}-${file.name}`
 
-      if (newFiles.length === 0) {
-        setError("Please upload image files only")
-        return
-      }
+      // Set status to processing
+      setQueueItems((prev) =>
+        prev.map((item) =>
+          item.id === itemId ? { ...item, status: "Processing", progress: 30 } : item,
+        ),
+      )
 
-      // Check file sizes
-      const oversizedFiles = newFiles.filter((file) => file.size > 20 * 1024 * 1024)
-      if (oversizedFiles.length > 0) {
-        setError(`${oversizedFiles.length} file(s) exceed the 20MB size limit`)
-        return
-      }
+      try {
+        const response = await fetch("/api/analyze", {
+          method: "POST",
+          body: formData,
+        })
+        const data = await response.json()
+        const timestamp = new Date().toLocaleString()
 
-      setFiles((prev) => [...prev, ...newFiles])
-      setError("")
-    }
-  }
+        if (!response.ok) {
+          setQueueItems((prev) =>
+            prev.map((item) =>
+              item.id === itemId
+                ? {
+                    ...item,
+                    status: "Failed",
+                    progress: 100,
+                    error: data?.error || "Unknown error",
+                  }
+                : item,
+            ),
+          )
 
-  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const newFiles = Array.from(e.target.files).filter((file) => file.type.startsWith("image/"))
+          setBatchResults((prev) => [
+            ...prev,
+            {
+              id: `fail-${Date.now()}-${file.name}`,
+              name: file.name,
+              status: "Failed",
+              progress: 100,
+              error: data?.error || "Unknown error",
+              result: {
+                defects: 0,
+                severity: "None",
+              },
+              timestamp,
+            },
+          ])
+        } else {
+          const defects = data.defects ?? 0
+          const severity = data.severity ?? "None"
 
-      if (newFiles.length === 0) {
-        setError("Please upload image files only")
-        return
-      }
+          setQueueItems((prev) =>
+            prev.map((item) =>
+              item.id === itemId
+                ? {
+                    ...item,
+                    status: "Completed",
+                    progress: 100,
+                    result: { defects, severity },
+                  }
+                : item,
+            ),
+          )
 
-      // Check file sizes
-      const oversizedFiles = newFiles.filter((file) => file.size > 20 * 1024 * 1024)
-      if (oversizedFiles.length > 0) {
-        setError(`${oversizedFiles.length} file(s) exceed the 20MB size limit`)
-        return
-      }
-
-      setFiles((prev) => [...prev, ...newFiles])
-      setError("")
-    }
-  }
-
-  const removeFile = (index: number) => {
-    setFiles((prev) => prev.filter((_, i) => i !== index))
-  }
-
-  const handleUpload = () => {
-    if (files.length === 0) {
-      setError("Please select at least one file to upload")
-      return
-    }
-
-    setUploading(true)
-    setUploadProgress(0)
-
-    // Simulate upload progress
-    const interval = setInterval(() => {
-      setUploadProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval)
-
-          // Wait a moment before resetting the UI
-          setTimeout(() => {
-            setUploading(false)
-            setFiles([])
-            // In a real app, we would process the files here and update the queue
-          }, 500)
-
-          return 100
+          setBatchResults((prev) => [
+            ...prev,
+            {
+              id: data.predictionId,
+              name: file.name,
+              status: "Completed",
+              progress: 100,
+              result: {
+                defects,
+                severity,
+              },
+              timestamp,
+            },
+          ])
         }
-        return prev + 5
-      })
-    }, 200)
+      } catch (err) {
+        console.error(err)
+        setQueueItems((prev) =>
+          prev.map((item) =>
+            item.id === itemId
+              ? { ...item, status: "Failed", progress: 100, error: "Upload error" }
+              : item,
+          ),
+        )
+
+        setBatchResults((prev) => [
+          ...prev,
+          {
+            id: `fail-${Date.now()}-${file.name}`,
+            name: file.name,
+            status: "Failed",
+            progress: 100,
+            error: "Upload error",
+            result: {
+              defects: 0,
+              severity: "None",
+            },
+            timestamp: new Date().toLocaleString(),
+          },
+        ])
+      }
+    }
   }
 
   return (
-    <Card className="bg-[#1A2035] border-[#00E5E5]/30">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-xl font-bold text-white">Upload PCB Images</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {!uploading ? (
-          <>
+    <div className="space-y-4">
+      <label className="cursor-pointer">
+        <input type="file" accept="image/*" multiple hidden onChange={handleUpload} />
+        <Button variant="outline" className="border-[#00E5E5] text-[#00E5E5] hover:bg-[#00E5E5]/10">
+          <UploadCloud className="mr-2 h-4 w-4" />
+          Upload PCB Images
+        </Button>
+      </label>
+
+      {queueItems.length > 0 && (
+        <div className="space-y-3">
+          {queueItems.map((item) => (
             <div
-              className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-all duration-300 mb-4 ${
-                isDragging
-                  ? "border-[#B347FF] bg-[#B347FF]/5"
-                  : "border-[#00E5E5]/50 hover:border-[#00E5E5] hover:bg-[#00E5E5]/5"
-              }`}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-              onClick={() => document.getElementById("batch-file-upload")?.click()}
+              key={item.id}
+              className="bg-[#1A2035] border border-[#00E5E5]/20 rounded-md px-4 py-2 text-white"
             >
-              <input
-                id="batch-file-upload"
-                type="file"
-                className="hidden"
-                accept="image/*"
-                multiple
-                onChange={handleFileInput}
-              />
-              <Upload className="h-12 w-12 mx-auto mb-4 text-[#00E5E5]" />
-              <h3 className="text-lg font-semibold mb-2 text-white">Drag & Drop Multiple PCB Images</h3>
-              <p className="text-gray-400 mb-2">or click to browse files</p>
-              <p className="text-sm text-gray-500">Supports JPG, PNG, TIFF (Max: 20MB per file)</p>
-            </div>
-
-            {error && (
-              <div className="flex items-center text-red-500 mb-4 p-2 bg-red-500/10 rounded">
-                <AlertCircle className="h-4 w-4 mr-2 flex-shrink-0" />
-                <span>{error}</span>
+              <div className="flex justify-between items-center mb-1">
+                <div className="font-medium">{item.name}</div>
+                <div className="text-sm text-gray-400 capitalize">{item.status}</div>
               </div>
-            )}
-
-            {files.length > 0 && (
-              <div className="space-y-4 mb-4">
-                <h3 className="text-white font-medium">Selected Files ({files.length})</h3>
-                <div className="max-h-60 overflow-y-auto space-y-2 pr-2">
-                  {files.map((file, index) => (
-                    <div key={index} className="flex items-center justify-between bg-[#0F172A] p-3 rounded-md">
-                      <div className="flex items-center">
-                        <FileText className="h-5 w-5 text-[#00E5E5] mr-3" />
-                        <div>
-                          <p className="text-white text-sm truncate max-w-[200px] md:max-w-md">{file.name}</p>
-                          <p className="text-gray-400 text-xs">{(file.size / (1024 * 1024)).toFixed(2)} MB</p>
-                        </div>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-gray-400 hover:text-red-500"
-                        onClick={() => removeFile(index)}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className="flex justify-end space-x-3">
-              <Button
-                variant="outline"
-                className="border-[#00E5E5] text-[#00E5E5] hover:bg-[#00E5E5]/10"
-                onClick={() => setFiles([])}
-                disabled={files.length === 0}
-              >
-                Clear All
-              </Button>
-              <Button
-                className="bg-[#B347FF] hover:bg-[#B347FF]/80 text-white"
-                onClick={handleUpload}
-                disabled={files.length === 0}
-              >
-                Process Batch ({files.length})
-              </Button>
+              <Progress value={item.progress} className="h-2 bg-[#0F172A]" />
+              {item.status === "Failed" && item.error && (
+                <p className="text-sm text-red-500 mt-1">{item.error}</p>
+              )}
             </div>
-          </>
-        ) : (
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-white">Uploading {files.length} files...</span>
-                <span className="text-[#00E5E5]">{uploadProgress}%</span>
-              </div>
-              <Progress value={uploadProgress} className="h-2 bg-[#0F172A]" indicatorClassName="bg-[#00E5E5]" />
-            </div>
-            <p className="text-gray-400 text-sm">
-              Please wait while your files are being uploaded and queued for processing.
-            </p>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+          ))}
+        </div>
+      )}
+    </div>
   )
 }
-

@@ -7,60 +7,18 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AlertTriangle, CheckCircle, Download, ExternalLink, Filter } from "lucide-react"
 import Link from "next/link"
+import { QueueItem } from "./batch-queue"
 
-export function BatchResults() {
+export function BatchResults({ results }: { results: QueueItem[] }) {
   const [filter, setFilter] = useState("all")
 
-  // In a real app, this would come from a server/API
-  const results = [
-    {
-      id: "result-1",
-      name: "Motor_Driver_Board.jpg",
-      timestamp: "2 hours ago",
-      defects: 5,
-      severity: "Critical",
-      status: "Completed",
-    },
-    {
-      id: "result-2",
-      name: "LED_Controller.jpg",
-      timestamp: "2 hours ago",
-      defects: 2,
-      severity: "Moderate",
-      status: "Completed",
-    },
-    {
-      id: "result-3",
-      name: "Sensor_Array_v1.jpg",
-      timestamp: "Yesterday",
-      defects: 0,
-      severity: "None",
-      status: "Completed",
-    },
-    {
-      id: "result-4",
-      name: "Power_Supply_Unit_Rev2.jpg",
-      timestamp: "Yesterday",
-      defects: 1,
-      severity: "Minor",
-      status: "Completed",
-    },
-    {
-      id: "result-5",
-      name: "Main_Controller_PCB_v3.jpg",
-      timestamp: "2 days ago",
-      defects: 3,
-      severity: "Critical",
-      status: "Completed",
-    },
-  ]
-
-  const filteredResults =
-    filter === "all"
-      ? results
-      : filter === "defects"
-        ? results.filter((r) => r.defects > 0)
-        : results.filter((r) => r.defects === 0)
+  const filteredResults = results.filter((r) => {
+    const defects = r.result?.defects ?? 0
+    if (filter === "all") return true
+    if (filter === "defects") return defects > 0
+    if (filter === "clean") return defects === 0
+    return true
+  })
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
@@ -85,16 +43,18 @@ export function BatchResults() {
           variant="outline"
           className="border-[#B347FF] text-[#B347FF] hover:bg-[#B347FF]/10"
           onClick={() => {
-            // Create a CSV file with the results data
             const headers = ["PCB Name", "Timestamp", "Defects", "Severity", "Status"]
             const csvContent = [
               headers.join(","),
-              ...filteredResults.map((result) =>
-                [result.name, result.timestamp, result.defects, result.severity, result.status].join(","),
-              ),
+              ...filteredResults.map((r) => [
+                r.name,
+                r.timestamp ?? "",
+                r.result?.defects ?? 0,
+                r.result?.severity ?? "Unknown",
+                r.status,
+              ].join(",")),
             ].join("\n")
 
-            // Create a blob and download it
             const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
             const url = URL.createObjectURL(blob)
             const link = document.createElement("a")
@@ -110,6 +70,7 @@ export function BatchResults() {
           Export All
         </Button>
       </CardHeader>
+
       <CardContent>
         <div className="flex justify-between items-center mb-4">
           <Tabs defaultValue="all" value={filter} onValueChange={setFilter}>
@@ -151,66 +112,77 @@ export function BatchResults() {
                   </td>
                 </tr>
               ) : (
-                filteredResults.map((result) => (
-                  <tr key={result.id} className="border-b border-[#00E5E5]/10 hover:bg-[#00E5E5]/5">
-                    <td className="py-3 px-4">
-                      <div className="font-medium text-white">{result.name}</div>
-                    </td>
-                    <td className="py-3 px-4 text-gray-400">{result.timestamp}</td>
-                    <td className="py-3 px-4">
-                      <div className="flex items-center">
-                        {result.defects > 0 ? (
-                          <AlertTriangle className="h-4 w-4 text-[#FF5733] mr-2" />
-                        ) : (
-                          <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                        )}
-                        <span className="text-white">{result.defects}</span>
-                      </div>
-                    </td>
-                    <td className="py-3 px-4">
-                      <Badge className={`${getSeverityColor(result.severity)} font-normal`}>{result.severity}</Badge>
-                    </td>
-                    <td className="py-3 px-4 text-right">
-                      <div className="flex justify-end space-x-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-[#00E5E5] hover:text-[#00E5E5] hover:bg-[#00E5E5]/10"
-                          onClick={() => {
-                            // Create a CSV file with this specific result
-                            const headers = ["PCB Name", "Timestamp", "Defects", "Severity", "Status"]
-                            const csvContent = [
-                              headers.join(","),
-                              [result.name, result.timestamp, result.defects, result.severity, result.status].join(","),
-                            ].join("\n")
+                filteredResults.map((result) => {
+                  const defects = result.result?.defects ?? 0
+                  const severity = result.result?.severity ?? "Unknown"
 
-                            // Create a blob and download it
-                            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
-                            const url = URL.createObjectURL(blob)
-                            const link = document.createElement("a")
-                            link.setAttribute("href", url)
-                            link.setAttribute("download", `pcb_result_${result.id}.csv`)
-                            link.style.visibility = "hidden"
-                            document.body.appendChild(link)
-                            link.click()
-                            document.body.removeChild(link)
-                          }}
-                        >
-                          <Download className="h-4 w-4" />
-                        </Button>
-                        <Link href={`/results/${result.id}`}>
+                  return (
+                    <tr key={result.id} className="border-b border-[#00E5E5]/10 hover:bg-[#00E5E5]/5">
+                      <td className="py-3 px-4">
+                        <div className="font-medium text-white">{result.name}</div>
+                      </td>
+                      <td className="py-3 px-4 text-gray-400">{result.timestamp}</td>
+                      <td className="py-3 px-4">
+                        <div className="flex items-center">
+                          {defects > 0 ? (
+                            <AlertTriangle className="h-4 w-4 text-[#FF5733] mr-2" />
+                          ) : (
+                            <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+                          )}
+                          <span className="text-white">{defects}</span>
+                        </div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <Badge className={`${getSeverityColor(severity)} font-normal`}>
+                          {severity}
+                        </Badge>
+                      </td>
+                      <td className="py-3 px-4 text-right">
+                        <div className="flex justify-end space-x-2">
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="text-[#B347FF] hover:text-[#B347FF] hover:bg-[#B347FF]/10"
+                            className="text-[#00E5E5] hover:text-[#00E5E5] hover:bg-[#00E5E5]/10"
+                            onClick={() => {
+                              const headers = ["PCB Name", "Timestamp", "Defects", "Severity", "Status"]
+                              const csvContent = [
+                                headers.join(","),
+                                [
+                                  result.name,
+                                  result.timestamp ?? "",
+                                  defects,
+                                  severity,
+                                  result.status,
+                                ].join(","),
+                              ].join("\n")
+
+                              const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
+                              const url = URL.createObjectURL(blob)
+                              const link = document.createElement("a")
+                              link.setAttribute("href", url)
+                              link.setAttribute("download", `pcb_result_${result.id}.csv`)
+                              link.style.visibility = "hidden"
+                              document.body.appendChild(link)
+                              link.click()
+                              document.body.removeChild(link)
+                            }}
                           >
-                            <ExternalLink className="h-4 w-4" />
+                            <Download className="h-4 w-4" />
                           </Button>
-                        </Link>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                          <Link href={`/results/${result.id}`}>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-[#B347FF] hover:text-[#B347FF] hover:bg-[#B347FF]/10"
+                            >
+                              <ExternalLink className="h-4 w-4" />
+                            </Button>
+                          </Link>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                })
               )}
             </tbody>
           </table>
@@ -219,4 +191,3 @@ export function BatchResults() {
     </Card>
   )
 }
-
