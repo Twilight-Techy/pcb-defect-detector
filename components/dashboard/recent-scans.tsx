@@ -9,7 +9,7 @@ import Link from "next/link"
 type Scan = {
   id: string
   name: string
-  timestamp: string
+  timestamp: Date
   defects: number
   severity: string
   status: string
@@ -21,15 +21,29 @@ export function RecentScans({ scans }: { scans: Scan[] }) {
     switch (severity) {
       case "Critical":
         return "bg-red-500/10 text-red-500 border-red-500/20"
-      case "Moderate":
+      case "High":
         return "bg-orange-500/10 text-orange-500 border-orange-500/20"
-      case "Minor":
+      case "Medium":
+        return "bg-yellow-500/10 text-yellow-500 border-yellow-500/20"
+      case "Low":
         return "bg-yellow-500/10 text-yellow-500 border-yellow-500/20"
       case "None":
         return "bg-green-500/10 text-green-500 border-green-500/20"
       default:
         return "bg-gray-500/10 text-gray-500 border-gray-500/20"
     }
+  }
+
+  // Utility function to format time ago
+  function timeAgo(date: string | Date): string {
+    const now = new Date()
+    const parsedDate = typeof date === "string" ? new Date(date) : date
+    const diff = Math.floor((now.getTime() - parsedDate.getTime()) / 1000)
+
+    if (diff < 60) return `${diff}s ago`
+    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`
+    return `${Math.floor(diff / 86400)}d ago`
   }
 
   return (
@@ -43,6 +57,7 @@ export function RecentScans({ scans }: { scans: Scan[] }) {
             // Navigate to a page with all scans
             window.location.href = "/batch"
           }}
+          disabled={true}
         >
           View All
         </Button>
@@ -69,7 +84,7 @@ export function RecentScans({ scans }: { scans: Scan[] }) {
                   <td className="py-3 px-4">
                     <div className="flex items-center">
                       <Clock className="h-4 w-4 text-gray-400 mr-2" />
-                      <span className="text-gray-400">{scan.timestamp}</span>
+                      <span className="text-gray-400">{timeAgo(scan.timestamp)}</span>
                     </div>
                   </td>
                   <td className="py-3 px-4">

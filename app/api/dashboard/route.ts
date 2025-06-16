@@ -1,10 +1,29 @@
 import { prisma } from "@/lib/prisma"
 import { NextResponse } from "next/server"
 
-export async function GET() {
+// Helper to get 30 days ago date
+const thirtyDaysAgo = new Date()
+thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+
+export async function GET(req: Request) {
+    const userId = req.headers.get("x-user-id")
+
+    if (!userId) {
+        return NextResponse.json(
+            { error: "User not authenticated" },
+            { status: 401 }
+        )
+    }
+
     try {
-        // Fetch all analyses
+        // Fetch only analyses from this user in the last 30 days
         const analyses = await prisma.analysis.findMany({
+            where: {
+                userId, // filter by user
+                // analyzedAt: {
+                //     gte: thirtyDaysAgo, // only within the last 30 days
+                // },
+            },
             include: {
                 defects: true,
             },
@@ -32,11 +51,11 @@ export async function GET() {
             avgProcessingTime: Number(avgProcessingTime.toFixed(2)),
         }
 
-        // Get the 5 most recent analyses
-        const recentScans = analyses.slice(0, 5).map((analysis) => ({
+        // Get all analyses
+        const recentScans = analyses.map((analysis) => ({
             id: analysis.id,
             name: analysis.pcbName,
-            timestamp: timeAgo(analysis.analyzedAt),
+            timestamp: analysis.analyzedAt,
             defects: analysis.numberOfDefects,
             severity: analysis.severity,
             status: analysis.status,
@@ -50,15 +69,4 @@ export async function GET() {
             { status: 500 }
         )
     }
-}
-
-// Utility function to format time ago
-function timeAgo(date: Date): string {
-    const now = new Date()
-    const diff = Math.floor((now.getTime() - date.getTime()) / 1000)
-
-    if (diff < 60) return `${diff}s ago`
-    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`
-    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`
-    return `${Math.floor(diff / 86400)}d ago`
 }

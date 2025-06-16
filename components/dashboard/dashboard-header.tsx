@@ -5,15 +5,18 @@ import { Calendar, Download } from "lucide-react"
 
 type DashboardHeaderProps = {
   stats: {
-    _count: number
-    _avg: { processingTime: number | null }
-    _sum: { numberOfDefects: number | null }
+    analyzed: number
+    defects: number
+    detectionRate: number
+    avgProcessingTime: number
   }
   scans: {
-    analyzedAt: string
-    pcbName: string
-    numberOfDefects: number
-    processingTime: number
+    id: string
+    name: string
+    timestamp: string
+    defects: number
+    severity: string
+    status: string
   }[]
 }
 
@@ -35,29 +38,44 @@ export function DashboardHeader({ stats, scans }: DashboardHeaderProps) {
           variant="outline"
           className="border-[#00E5E5] text-[#00E5E5] hover:bg-[#00E5E5]/10"
           onClick={() => {
-            const headers = [
-              "Date",
-              "PCB Name",
-              "Defects Detected",
-              "Processing Time (s)",
+            // First, add stats at the top of the CSV
+            const statHeaders = ["Total Scans", "Total Defects", "Detection Rate (%)", "Avg. Processing Time (s)"]
+            const statValues = [
+              stats.analyzed.toString(),
+              stats.defects.toString(),
+              stats.detectionRate.toFixed(2),
+              stats.avgProcessingTime.toFixed(2),
             ]
 
-            const csvRows = scans.map((scan) => {
+            // Then, add column headers for scan entries
+            const scanHeaders = ["Date", "PCB Name", "Defects Detected", "Severity", "Status"]
+
+            // Map each scan into a CSV row
+            const scanRows = scans.map((scan) => {
               const date =
-                typeof scan.analyzedAt === "string" || typeof scan.analyzedAt === "number"
-                  ? new Date(scan.analyzedAt)
+                typeof scan.timestamp === "string" || typeof scan.timestamp === "number"
+                  ? new Date(scan.timestamp)
                   : null
 
               return [
                 date ? date.toISOString().split("T")[0] : "Invalid Date",
-                scan.pcbName ?? "N/A",
-                scan.numberOfDefects?.toString() ?? "0",
-                scan.processingTime?.toFixed(2) ?? "0.00",
+                scan.name ?? "N/A",
+                scan.defects?.toString() ?? "0",
+                scan.severity ?? "N/A",
+                scan.status ?? "N/A"
               ].join(",")
             })
 
-            const csvContent = [headers.join(","), ...csvRows].join("\n")
+            // Combine everything into one CSV content string
+            const csvContent = [
+              statHeaders.join(","),
+              statValues.join(","),
+              "", // blank line between stats and table
+              scanHeaders.join(","),
+              ...scanRows
+            ].join("\n")
 
+            // Trigger download
             const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
             const url = URL.createObjectURL(blob)
             const link = document.createElement("a")

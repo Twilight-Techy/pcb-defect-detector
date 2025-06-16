@@ -7,6 +7,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Status {
+  Completed
+  Failed
+}
+
+enum Severity {
+  Low
+  Medium
+  High
+  Critical
+}
+
 model User {
   id           String       @id @default(uuid())
   name         String
@@ -22,8 +34,8 @@ model Analysis {
   pcbName         String
   analyzedAt      DateTime         @default(now()) // replaces createdAt
   numberOfDefects Int              @default(0)
-  severity        String           // e.g., "Low", "Medium", "High"
-  status          String           // e.g., "Pending Review", "Complete"
+  severity        Severity           // e.g., "Low", "Medium", "High"
+  status          Status           // e.g., "Pending Review", "Complete"
   processingTime  Float
   imageUrl        String           // Original Image
   overview        String           // General Overview
@@ -39,11 +51,11 @@ model Analysis {
 model DetectedDefect {
   id              String   @id @default(uuid())
   name            String   // class or label
-   location        String  // location of the defect
+  location        String  // location of the defect
   description     String   // description of the defect
   repairSteps     Json     // array of steps
   requiredTools   Json     // array of tools
-  severity        String   // added: e.g., "Low", "Critical"
+  severity        Severity   // added: e.g., "Low", "Critical"
 
   x               Float
   y               Float
