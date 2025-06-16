@@ -1,32 +1,41 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { CircuitBoard, AlertTriangle, CheckCircle, Clock, TrendingUp } from "lucide-react"
 
-export function DashboardStats() {
-  const stats = [
+interface StatsProps {
+  stats: {
+    analyzed: number
+    defects: number
+    detectionRate: number
+    avgProcessingTime: number
+  }
+}
+
+export function DashboardStats({ stats }: StatsProps) {
+  const data = [
     {
       title: "PCBs Analyzed",
-      value: "1,248",
-      change: "+12.5%",
+      value: stats.analyzed.toLocaleString(),
+      change: "+12.5%", // can be calculated in backend later
       icon: <CircuitBoard className="h-5 w-5 text-[#00E5E5]" />,
       trend: "up",
     },
     {
       title: "Defects Detected",
-      value: "342",
+      value: stats.defects.toString(),
       change: "-8.3%",
       icon: <AlertTriangle className="h-5 w-5 text-[#B347FF]" />,
       trend: "down",
     },
     {
       title: "Detection Rate",
-      value: "98.7%",
+      value: `${stats.detectionRate.toFixed(1)}%`,
       change: "+1.2%",
       icon: <CheckCircle className="h-5 w-5 text-[#00E5E5]" />,
       trend: "up",
     },
     {
       title: "Avg. Processing Time",
-      value: "1.8s",
+      value: `${stats.avgProcessingTime.toFixed(1)}s`,
       change: "-0.3s",
       icon: <Clock className="h-5 w-5 text-[#B347FF]" />,
       trend: "down",
@@ -35,7 +44,7 @@ export function DashboardStats() {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-      {stats.map((stat, index) => (
+      {data.map((stat, index) => (
         <Card
           key={index}
           className="bg-[#1A2035] border-[#00E5E5]/20 hover:border-[#B347FF]/30 transition-all duration-300"

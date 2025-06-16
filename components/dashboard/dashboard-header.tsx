@@ -3,7 +3,21 @@
 import { Button } from "@/components/ui/button"
 import { Calendar, Download } from "lucide-react"
 
-export function DashboardHeader() {
+type DashboardHeaderProps = {
+  stats: {
+    _count: number
+    _avg: { processingTime: number | null }
+    _sum: { numberOfDefects: number | null }
+  }
+  scans: {
+    analyzedAt: string
+    pcbName: string
+    numberOfDefects: number
+    processingTime: number
+  }[]
+}
+
+export function DashboardHeader({ stats, scans }: DashboardHeaderProps) {
   return (
     <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
       <div>
@@ -21,25 +35,29 @@ export function DashboardHeader() {
           variant="outline"
           className="border-[#00E5E5] text-[#00E5E5] hover:bg-[#00E5E5]/10"
           onClick={() => {
-            // Create a CSV with dashboard data
-            const headers = ["Date", "PCBs Analyzed", "Defects Detected", "Detection Rate", "Avg. Processing Time"]
+            const headers = [
+              "Date",
+              "PCB Name",
+              "Defects Detected",
+              "Processing Time (s)",
+            ]
 
-            // Mock data for the last 30 days
-            const mockData = Array.from({ length: 30 }, (_, i) => {
-              const date = new Date()
-              date.setDate(date.getDate() - i)
+            const csvRows = scans.map((scan) => {
+              const date =
+                typeof scan.analyzedAt === "string" || typeof scan.analyzedAt === "number"
+                  ? new Date(scan.analyzedAt)
+                  : null
+
               return [
-                date.toISOString().split("T")[0],
-                Math.floor(Math.random() * 50 + 20).toString(),
-                Math.floor(Math.random() * 15 + 5).toString(),
-                (Math.random() * 5 + 95).toFixed(1) + "%",
-                (Math.random() * 0.5 + 1.5).toFixed(1) + "s",
+                date ? date.toISOString().split("T")[0] : "Invalid Date",
+                scan.pcbName ?? "N/A",
+                scan.numberOfDefects?.toString() ?? "0",
+                scan.processingTime?.toFixed(2) ?? "0.00",
               ].join(",")
             })
 
-            const csvContent = [headers.join(","), ...mockData].join("\n")
+            const csvContent = [headers.join(","), ...csvRows].join("\n")
 
-            // Create a blob and download it
             const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
             const url = URL.createObjectURL(blob)
             const link = document.createElement("a")

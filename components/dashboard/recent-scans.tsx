@@ -6,49 +6,16 @@ import { Badge } from "@/components/ui/badge"
 import { AlertTriangle, CheckCircle, Clock, ExternalLink } from "lucide-react"
 import Link from "next/link"
 
-export function RecentScans() {
-  const scans = [
-    {
-      id: "scan-123",
-      name: "Main Controller PCB",
-      timestamp: "2 hours ago",
-      defects: 3,
-      severity: "Critical",
-      status: "Completed",
-    },
-    {
-      id: "scan-122",
-      name: "Power Supply Unit",
-      timestamp: "5 hours ago",
-      defects: 1,
-      severity: "Minor",
-      status: "Completed",
-    },
-    {
-      id: "scan-121",
-      name: "Sensor Array v2",
-      timestamp: "Yesterday",
-      defects: 0,
-      severity: "None",
-      status: "Completed",
-    },
-    {
-      id: "scan-120",
-      name: "LED Controller",
-      timestamp: "Yesterday",
-      defects: 2,
-      severity: "Moderate",
-      status: "Completed",
-    },
-    {
-      id: "scan-119",
-      name: "Motor Driver Board",
-      timestamp: "2 days ago",
-      defects: 5,
-      severity: "Critical",
-      status: "Completed",
-    },
-  ]
+type Scan = {
+  id: string
+  name: string
+  timestamp: string
+  defects: number
+  severity: string
+  status: string
+}
+
+export function RecentScans({ scans }: { scans: Scan[] }) {
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
