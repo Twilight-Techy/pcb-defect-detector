@@ -24,7 +24,7 @@ export async function POST(req: Request) {
             },
         });
 
-        return NextResponse.json({ message: "User created", user: { id: user.id, email: user.email } }, { status: 201 });
+        return NextResponse.json({ message: "User created", user: { id: user.id, name: user.name, email: user.email } }, { status: 201 });
     } catch (error) {
         return NextResponse.json({ error: "Signup failed" }, { status: 500 });
     }

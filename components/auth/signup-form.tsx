@@ -51,6 +51,7 @@ export function SignupForm() {
         const message = result.error || result.message || "Something went wrong. Please try again.";
         toast.error(message);
       } else {
+        localStorage.setItem("user", JSON.stringify(result.user));
         toast.success("Account created!");
         router.push("/dashboard")
       }
