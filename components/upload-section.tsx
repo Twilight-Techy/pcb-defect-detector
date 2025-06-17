@@ -55,6 +55,11 @@ export function UploadSection() {
     setIsLoading(true)
 
     const user = JSON.parse(localStorage.getItem("user")!)
+    if (!user || !user.id) {
+      toast.error("You must be logged in to analyze a PCB image")
+      setIsLoading(false)
+      return
+    }
 
     const formData = new FormData()
     formData.append("file", file)

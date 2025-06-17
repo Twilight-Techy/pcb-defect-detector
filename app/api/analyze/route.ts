@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { put } from "@vercel/blob"
 import { prisma } from "@/lib/prisma"
+import { Severity } from "@prisma/client"
 
 export async function POST(req: Request) {
     const contentType = req.headers.get("content-type")
@@ -62,44 +63,47 @@ export async function POST(req: Request) {
     const overviewText = JSON.parse(output?.detection_overview?.output || "{}")
 
     const defectCount = predictions.length
-    const totalConfidence = predictions.reduce((sum: number, d: any) => sum + (d.confidence || 0), 0)
+    const totalConfidence = predictions.reduce((sum: number, d: any) => sum + parseFloat(d.confidence || "0"), 0)
     const avgConfidence = defectCount > 0 ? totalConfidence / defectCount : 0
+    const pcbName = overviewText.pcb_name
 
     // Use simple rules for analysis severity
     const analysisSeverity =
         avgConfidence >= 0.85
-            ? "Critical"
+            ? Severity.Critical
             : avgConfidence >= 0.6
-                ? "Major"
+                ? Severity.High
                 : avgConfidence > 0.3
-                    ? "Minor"
-                    : "Negligible"
+                    ? Severity.Medium
+                    : Severity.Low
 
     // Match each detection to its metadata
-    const defects = predictions.map((pred: any) => {
-        const meta = defectsDetails.find((d: any) => d.class === pred.class) || {}
+    const defects = defectsDetails.map((pred: any) => {
+        // const meta = defectsDetails.find((d: any) => d.class === pred.class) || {}
+
+        const confidence = parseFloat(pred.confidence || "0")
 
         const severity =
-            pred.confidence >= 0.85
-                ? "High"
-                : pred.confidence >= 0.6
-                    ? "Medium"
-                    : pred.confidence > 0.3
-                        ? "Low"
-                        : "Negligible"
+            confidence >= 0.85
+                ? Severity.Critical
+                : confidence >= 0.6
+                    ? Severity.High
+                    : confidence > 0.3
+                        ? Severity.Medium
+                        : Severity.Low
 
         return {
             name: pred.class,
-            location: meta.location || "Unknown",
-            description: meta.description || "No description available.",
+            location: pred.location,
+            description: pred.description,
             severity,
-            confidence: pred.confidence,
-            x: pred.x,
-            y: pred.y,
-            width: pred.width,
-            height: pred.height,
-            repairSteps: meta.suggestions ? meta.suggestions.split(". ").filter(Boolean) : [],
-            requiredTools: meta.tools ? meta.tools.split(",").map((t: string) => t.trim()) : [],
+            confidence: typeof pred.confidence === "string" ? parseFloat(pred.confidence) : pred.confidence,
+            x: typeof pred.x === "string" ? parseFloat(pred.x) : pred.x,
+            y: typeof pred.y === "string" ? parseFloat(pred.y) : pred.y,
+            width: typeof pred.width === "string" ? parseFloat(pred.width) : pred.width,
+            height: typeof pred.height === "string" ? parseFloat(pred.height) : pred.height,
+            repairSteps: Array.isArray(pred.suggestions) ? pred.suggestions : [],
+            requiredTools: Array.isArray(pred.tools) ? pred.tools : [],
         }
     })
 
@@ -109,7 +113,7 @@ export async function POST(req: Request) {
             processingTime: inferenceTime,
             rawResponse: result,
             userId,
-            pcbName: "PCB Board", // default
+            pcbName: pcbName,
             severity: analysisSeverity,
             status: "Completed",
             overview: overviewText.general_overview || "N/A",
