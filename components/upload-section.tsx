@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Upload, CheckCircle, Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
+import { set } from "react-hook-form"
 
 export function UploadSection() {
   const [isDragging, setIsDragging] = useState(false)
@@ -14,6 +15,7 @@ export function UploadSection() {
   const [preview, setPreview] = useState<string | null>(null)
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault()
@@ -52,14 +54,21 @@ export function UploadSection() {
 
   const handleAnalyze = async () => {
     if (!file) return
-    setIsLoading(true)
 
     const user = JSON.parse(localStorage.getItem("user")!)
     if (!user || !user.id) {
-      toast.error("You must be logged in to analyze a PCB image")
-      setIsLoading(false)
+      setError("You must be logged in to analyze a PCB image")
+      toast.error(error)
       return
     }
+
+    if (!file.type.startsWith("image/")) {
+      setError("Selected file is not a valid image")
+      toast.error(error)
+      return
+    }
+
+    setIsLoading(true)
 
     const formData = new FormData()
     formData.append("file", file)

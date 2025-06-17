@@ -10,6 +10,7 @@ import { Upload, Image, LinkIcon, AlertCircle } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 
 export function AnalysisUploader() {
   const [activeTab, setActiveTab] = useState("upload")
@@ -87,6 +88,20 @@ export function AnalysisUploader() {
       if (file) {
         const formData = new FormData()
         const user = JSON.parse(localStorage.getItem("user")!)
+        if (!user || !user.id) {
+          setError("You must be logged in to analyze a PCB image")
+          toast.error(error)
+          setIsLoading(false)
+          return
+        }
+
+        if (!file.type.startsWith("image/")) {
+          setError("Selected file is not a valid image")
+          toast.error(error)
+          setIsLoading(false)
+          return
+        }
+
         formData.append("file", file)
         formData.append("userId", user.id)
 
@@ -112,13 +127,15 @@ export function AnalysisUploader() {
       const data = await res.json()
 
       if (!res.ok) {
-        throw new Error(data.error || "Analysis failed")
+        toast.error(data.error || "Failed to analyze image")
       }
 
+      toast.success("Analysis completed successfully!")
       router.push(`/results/${data.predictionId}`)
     } catch (err: any) {
       console.error(err)
       setError(err.message || "Something went wrong")
+      toast.error(err.message || "Failed to analyze image")
     } finally {
       setIsLoading(false)
     }
