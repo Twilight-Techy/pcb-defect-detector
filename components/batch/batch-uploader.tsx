@@ -176,7 +176,7 @@ export function BatchUploader({
               error: data?.error || "Unknown error",
               result: {
                 defects: 0,
-                severity: "None",
+                severity: "Low",
               },
               timestamp: new Date().toLocaleString(),
             },
@@ -235,7 +235,7 @@ export function BatchUploader({
             error: "Upload error",
             result: {
               defects: 0,
-              severity: "None",
+              severity: "Low",
             },
             timestamp: new Date().toLocaleString(),
           },
