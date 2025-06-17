@@ -35,7 +35,7 @@ export function DashboardStats({ stats }: StatsProps) {
     },
     {
       title: "Avg. Processing Time",
-      value: `${stats.avgProcessingTime.toFixed(1)}s`,
+      value: `${(stats.avgProcessingTime / 1000).toFixed(1)}s`,
       change: "-0.3s",
       icon: <Clock className="h-5 w-5 text-[#B347FF]" />,
       trend: "down",
