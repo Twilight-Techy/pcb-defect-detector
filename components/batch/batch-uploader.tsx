@@ -87,8 +87,25 @@ export function BatchUploader({
   }
 
   const handleUpload = async () => {
+
+    const currentUser = JSON.parse(localStorage.getItem("user")!)
+
+    if (!currentUser || !currentUser.id) {
+      setError("You must be logged in to upload files")
+      toast.error(error)
+      setUploading(false)
+      return
+    }
+
+    if (uploading) {
+      setError("Upload already in progress")
+      toast.error(error)
+      return
+    }
+
     if (files.length === 0) {
       setError("Please select at least one file to upload")
+      toast.error(error)
       return
     }
 
@@ -96,7 +113,6 @@ export function BatchUploader({
     setUploadProgress(0)
     setError("")
 
-    const currentUser = JSON.parse(localStorage.getItem("user")!)
     const total = files.length
     const results: { fileName: string; predictionId?: string; error?: string }[] = []
 
@@ -134,8 +150,10 @@ export function BatchUploader({
         
         const data = await response.json()
 
-        if (!contentType || contentType.includes("application/json")) {
-          throw new Error("Invalid response format!")
+        if (!contentType || !contentType.includes("application/json")) {
+          setError("Invalid response format from server")
+          toast.error("Invalid response format from server")
+          continue
         }
 
         if (!response.ok) {

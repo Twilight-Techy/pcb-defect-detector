@@ -125,5 +125,9 @@ export async function POST(req: Request) {
         },
     })
 
-    return NextResponse.json({ predictionId: prediction.id })
+    return NextResponse.json({
+        predictionId: prediction.id,
+        defectCount: prediction.numberOfDefects,
+        severity: prediction.severity,
+    })
 }
