@@ -15,7 +15,7 @@ export type QueueItem = {
   error?: string
   result?: {
     defects: number
-    severity: "Critical" | "Moderate" | "Minor" | "None"
+    severity: "Critical" | "High" | "Medium" | "Low"
   }
   timestamp?: string
 }
@@ -60,11 +60,11 @@ export function BatchQueue({ queueItems, setQueueItems }: BatchQueueProps) {
     switch (severity) {
       case "Critical":
         return <Badge className="bg-red-500/10 text-red-500 border-red-500/20">Critical</Badge>
-      case "Moderate":
-        return <Badge className="bg-orange-500/10 text-orange-500 border-orange-500/20">Moderate</Badge>
-      case "Minor":
-        return <Badge className="bg-yellow-500/10 text-yellow-500 border-yellow-500/20">Minor</Badge>
-      case "None":
+      case "High":
+        return <Badge className="bg-orange-500/10 text-orange-500 border-orange-500/20">High</Badge>
+      case "Medium":
+        return <Badge className="bg-yellow-500/10 text-yellow-500 border-yellow-500/20">Medium</Badge>
+      case "Low":
         return <Badge className="bg-green-500/10 text-green-500 border-green-500/20">No Defects</Badge>
       default:
         return null
@@ -83,9 +83,9 @@ export function BatchQueue({ queueItems, setQueueItems }: BatchQueueProps) {
             result: newProgress === 100
               ? {
                   defects: Math.floor(Math.random() * 3),
-                  severity: ["None", "Minor", "Moderate", "Critical"][
+                  severity: ["Low", "Medium", "High", "Critical"][
                     Math.floor(Math.random() * 4)
-                  ] as "None" | "Minor" | "Moderate" | "Critical",
+                  ] as "Low" | "Medium" | "High" | "Critical",
                 }
               : item.result,
           }
