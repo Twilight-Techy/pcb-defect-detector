@@ -6,11 +6,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Wrench, Lightbulb, ArrowRight, Download } from "lucide-react"
 
 interface RepairSuggestion {
-  defectId: number
-  defectType: string
-  suggestions: string[]
-  toolsNeeded: string[]
-  estimatedTime: string
+  id: number
+  name: string
+  repairSteps: string[]
+  requiredTools: string[]
+  estimatedRepairTime: string
 }
 
 interface RepairSuggestionsProps {
@@ -32,11 +32,11 @@ export function RepairSuggestions({ id, repairs }: RepairSuggestionsProps) {
   if (!repairs || repairs.length === 0) {
     repairs = [
       {
-        defectId: 0,
-        defectType: "No Repairs Needed",
-        suggestions: ["No repairs are required for this PCB."],
-        toolsNeeded: [],
-        estimatedTime: "N/A",
+        id: 0,
+        name: "No Repairs Needed",
+        repairSteps: ["No repairs are required for this PCB."],
+        requiredTools: [],
+        estimatedRepairTime: "N/A",
       },
     ] // Fallback for no repairs 
   }
@@ -56,21 +56,21 @@ export function RepairSuggestions({ id, repairs }: RepairSuggestionsProps) {
         </div>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue={repairs[0].defectId.toString()}>
+        <Tabs defaultValue={repairs[0].id.toString()}>
           <TabsList className="bg-[#0F172A] mb-4">
             {repairs.map((repair) => (
               <TabsTrigger
-                key={repair.defectId}
-                value={repair.defectId.toString()}
+                key={repair.id}
+                value={repair.id.toString()}
                 className="data-[state=active]:bg-[#00E5E5] data-[state=active]:text-black"
               >
-                {repair.defectType}
+                {repair.name}
               </TabsTrigger>
             ))}
           </TabsList>
 
           {repairs.map((repair) => (
-            <TabsContent key={repair.defectId} value={repair.defectId.toString()} className="mt-0">
+            <TabsContent key={repair.id} value={repair.id.toString()} className="mt-0">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="p-4 bg-[#0F172A] rounded-lg border border-[#00E5E5]/20">
                   <h3 className="text-lg font-semibold text-white mb-3 flex items-center">
@@ -78,7 +78,7 @@ export function RepairSuggestions({ id, repairs }: RepairSuggestionsProps) {
                     Repair Steps
                   </h3>
                   <ol className="space-y-3 pl-6 list-decimal">
-                    {repair.suggestions.map((suggestion, index) => (
+                    {repair.repairSteps.map((suggestion, index) => (
                       <li key={index} className="text-gray-300">
                         {suggestion}
                       </li>
@@ -89,7 +89,7 @@ export function RepairSuggestions({ id, repairs }: RepairSuggestionsProps) {
                 <div className="p-4 bg-[#0F172A] rounded-lg border border-[#00E5E5]/20">
                   <h3 className="text-lg font-semibold text-white mb-3">Required Tools</h3>
                   <ul className="space-y-2">
-                    {repair.toolsNeeded.map((tool, index) => (
+                    {repair.requiredTools.map((tool, index) => (
                       <li key={index} className="flex items-center text-gray-300">
                         <ArrowRight className="h-4 w-4 text-[#B347FF] mr-2" />
                         {tool}
@@ -98,7 +98,7 @@ export function RepairSuggestions({ id, repairs }: RepairSuggestionsProps) {
                   </ul>
                   <div className="mt-4 pt-4 border-t border-[#00E5E5]/20">
                     <span className="text-gray-400">Estimated repair time: </span>
-                    <span className="text-white font-medium">{repair.estimatedTime}</span>
+                    <span className="text-white font-medium">{repair.estimatedRepairTime}</span>
                   </div>
                 </div>
               </div>

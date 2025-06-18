@@ -4,7 +4,7 @@ import { AlertTriangle, AlertCircle, AlertOctagon } from "lucide-react"
 
 export interface Defect {
   id: number
-  type: string
+  name: string
   location: string
   severity: string
   confidence: number
@@ -37,10 +37,12 @@ export function DefectList({ id, defects }: DefectListProps) {
     switch (severity) {
       case "Critical":
         return <AlertOctagon className="h-5 w-5 text-red-500" />
-      case "Moderate":
+      case "High":
         return <AlertTriangle className="h-5 w-5 text-orange-500" />
-      case "Minor":
+      case "Medium":
         return <AlertCircle className="h-5 w-5 text-yellow-500" />
+      case "Low":
+        return <AlertCircle className="h-5 w-5 text-green-500" />
       default:
         return <AlertCircle className="h-5 w-5 text-gray-500" />
     }
@@ -50,10 +52,12 @@ export function DefectList({ id, defects }: DefectListProps) {
     switch (severity) {
       case "Critical":
         return "bg-red-500/10 text-red-500 border-red-500/20"
-      case "Moderate":
+      case "High":
         return "bg-orange-500/10 text-orange-500 border-orange-500/20"
-      case "Minor":
+      case "Medium":
         return "bg-yellow-500/10 text-yellow-500 border-yellow-500/20"
+      case "Low":
+        return "bg-green-500/10 text-green-500 border-green-500/20"
       default:
         return "bg-gray-500/10 text-gray-500 border-gray-500/20"
     }
@@ -74,7 +78,7 @@ export function DefectList({ id, defects }: DefectListProps) {
               <div className="flex items-start justify-between mb-2">
                 <div className="flex items-center">
                   {getSeverityIcon(defect.severity)}
-                  <h3 className="text-lg font-semibold text-white ml-2">{defect.type}</h3>
+                  <h3 className="text-lg font-semibold text-white ml-2">{defect.name}</h3>
                 </div>
                 <Badge className={getSeverityColor(defect.severity)}>{defect.severity}</Badge>
               </div>

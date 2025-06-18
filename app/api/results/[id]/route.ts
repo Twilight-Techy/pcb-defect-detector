@@ -3,9 +3,9 @@ import { prisma } from "@/lib/prisma"
 import { NextResponse } from "next/server"
 
 export async function GET(
-    { params }: { params: { id: string } }
+    req: Request, context: { params: { id: string } }
 ) {
-    const { id } = params
+    const { id } = context.params
 
     try {
         const prediction = await prisma.analysis.findUnique({

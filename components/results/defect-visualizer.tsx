@@ -12,7 +12,7 @@ type Defect = {
   y: number
   width: number
   height: number
-  type: string
+  name: string
   confidence: number
 }
 
@@ -54,7 +54,7 @@ export function DefectVisualizer({ id, imageUrl, defects }: DefectVisualizerProp
 
           ctx.fillStyle = "#FF5733"
           ctx.font = `${12 / zoom}px sans-serif`
-          ctx.fillText(`${defect.type} (${Math.round(defect.confidence * 100)}%)`, defect.x / zoom, defect.y / zoom - 5)
+          ctx.fillText(`${defect.name} (${Math.round(defect.confidence * 100)}%)`, defect.x / zoom, defect.y / zoom - 5)
         })
       }
 
