@@ -49,9 +49,17 @@ export default function Dashboard() {
   return (
     <main className="min-h-screen flex flex-col">
       <Navbar />
-      <div className="container mx-auto px-4 py-8">
-        {loading && <p className="text-white">Loading dashboard...</p>}
-        {error && <p className="text-red-500">Error: {error}</p>}
+      <div className="container mx-auto px-4 py-8 flex-1">
+        {loading && (
+          <div className="flex items-center justify-center py-20">
+            <div className="h-10 w-10 animate-spin rounded-full border-4 border-t-[#B347FF] border-gray-300"></div>
+            <p className="ml-4 text-white text-lg">Loading dashboard...</p>
+          </div>
+        )}
+
+        {error && !loading && (
+          <div className="text-center text-red-500 text-lg">{error}</div>
+        )}
         {!loading && !error && stats && (
           <>
             <DashboardHeader stats={stats} scans={scans} />
