@@ -248,7 +248,7 @@ export function BatchUploader({
     setTimeout(() => {
       setUploading(false)
       setFiles([])
-      console.log("Batch results:", results)
+      // console.log("Batch results:", results)
 
       const failed = results.filter((r) => r.error)
       const success = results.filter((r) => r.predictionId)
@@ -257,7 +257,7 @@ export function BatchUploader({
         toast.success(`All ${total} images analyzed successfully!`)
       } else {
         toast.warning(`${success.length} succeeded, ${failed.length} failed.`)
-        console.table(results)
+        // console.table(results)
       }
 
       // Optional: emit results to <BatchResults /> etc.

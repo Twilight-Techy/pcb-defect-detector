@@ -13,7 +13,7 @@ interface PageProps {
 }
 
 export default async function Results({ params }: PageProps) {
-  const id = await params.id;
+  const id = params.id;
 
   const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/results/${id}`, {
     cache: "no-store",
@@ -48,7 +48,8 @@ export default async function Results({ params }: PageProps) {
           <DefectVisualizer
             id={prediction.id}
             imageUrl={prediction.imageUrl}
-            defects={prediction.defects}
+            labelVisualizationUrl={prediction.labelVisualization}
+            dotVisualizationUrl={prediction.dotVisualization}
           />
           <div className="space-y-8">
             <DefectList id={prediction.id} defects={prediction.defects} />

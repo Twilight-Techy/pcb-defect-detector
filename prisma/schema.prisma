@@ -36,11 +36,13 @@ model Analysis {
   analyzedAt      DateTime         @default(now()) // replaces createdAt
   numberOfDefects Int              @default(0)
   severity        Severity           // e.g., "Low", "Medium", "High"
-  status          Status           // e.g., "Pending Review", "Complete"
+  status          Status           // e.g., "Failed", "Complete"
   processingTime  Float
   imageUrl        String           // Original Image
   overview        String           // General Overview
   technical       String           // Technical Overview
+  labelVisualization String   // Label Visualization Image URL
+  dotVisualization   String   // Dot Visualization Image URL
   rawResponse     Json
 
   // Relations
@@ -56,7 +58,7 @@ model DetectedDefect {
   description     String   // description of the defect
   repairSteps     Json     // array of steps
   requiredTools   Json     // array of tools
-  estimatedRepairTime   String    @default("Unknown") // e.g., "2 hours", "1 day"
+  estimatedRepairTime   String
   severity        Severity   // added: e.g., "Low", "Critical"
 
   x               Float

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { put } from "@vercel/blob"
 import { prisma } from "@/lib/prisma"
 import { Severity } from "@prisma/client"
+import { base64ToFile } from "@/lib/base64-to-file"
 
 export async function POST(req: Request) {
     const contentType = req.headers.get("content-type")
@@ -60,20 +61,36 @@ export async function POST(req: Request) {
     const output = result.outputs?.[0]
     const predictions = output?.pcb_defect_detections?.predictions ?? []
     const defectsDetails = JSON.parse(output?.defects_details?.output || "[]")
-    const overviewText = JSON.parse(output?.detection_overview?.output || "{}")
+    const overview = JSON.parse(output?.detection_overview?.output || "{}")
 
     const defectCount = predictions.length
     const totalConfidence = predictions.reduce((sum: number, d: any) => sum + parseFloat(d.confidence || "0"), 0)
     const avgConfidence = defectCount > 0 ? totalConfidence / defectCount : 0
-    const pcbName = overviewText.pcb_name
+    const pcbName = overview.pcb_name
 
-    const is_pcb = overviewText.is_pcb === "true" || overviewText.is_pcb === true
+    const is_pcb = overview.is_pcb === "true" || overview.is_pcb === true
     if (!is_pcb) {
         return NextResponse.json(
             { error: "The uploaded image does not appear to be a PCB." },
             { status: 400 }
         )
     }
+
+    const labelVisualization = output?.label_visualization || ""
+    const dotVisualization = output?.dot_visualization || ""
+
+    const labelFile = base64ToFile(labelVisualization.value, "label-visualization.png")
+    const dotFile = base64ToFile(dotVisualization.value, "dot-visualization.png")
+
+    const labelBlob = await put(labelFile.name, labelFile, {
+        access: "public",
+        addRandomSuffix: true,
+    })
+
+    const dotBlob = await put(dotFile.name, dotFile, {
+        access: "public",
+        addRandomSuffix: true,
+    })
 
     // Use simple rules for analysis severity
     const analysisSeverity =
@@ -120,19 +137,25 @@ export async function POST(req: Request) {
         data: {
             imageUrl,
             processingTime: inferenceTime,
-            rawResponse: result,
+            rawResponse: "result",
             userId,
             pcbName: pcbName,
             severity: analysisSeverity,
             status: "Completed",
-            overview: overviewText.general_overview || "N/A",
-            technical: overviewText.technical_overview || "N/A",
+            overview: overview.general_overview,
+            technical: overview.technical_overview,
             numberOfDefects: defectCount,
+            labelVisualization: labelBlob.url,
+            dotVisualization: dotBlob.url,
             defects: {
                 create: defects,
             },
         },
     })
+
+    if (!prediction) {
+        return NextResponse.json({ error: "Failed to save analysis" }, { status: 500 })
+    }
 
     return NextResponse.json({
         predictionId: prediction.id,
