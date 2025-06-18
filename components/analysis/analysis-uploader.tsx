@@ -128,10 +128,12 @@ export function AnalysisUploader() {
 
       if (!res.ok) {
         toast.error(data.error || "Failed to analyze image")
+        setIsLoading(false)
+        return
+      } else {
+        toast.success("Analysis completed successfully!")
+        router.push(`/results/${data.predictionId}`)
       }
-
-      toast.success("Analysis completed successfully!")
-      router.push(`/results/${data.predictionId}`)
     } catch (err: any) {
       console.error(err)
       setError(err.message || "Something went wrong")

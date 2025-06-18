@@ -67,6 +67,14 @@ export async function POST(req: Request) {
     const avgConfidence = defectCount > 0 ? totalConfidence / defectCount : 0
     const pcbName = overviewText.pcb_name
 
+    const is_pcb = overviewText.is_pcb === "true" || overviewText.is_pcb === true
+    if (!is_pcb) {
+        return NextResponse.json(
+            { error: "The uploaded image does not appear to be a PCB." },
+            { status: 400 }
+        )
+    }
+
     // Use simple rules for analysis severity
     const analysisSeverity =
         avgConfidence >= 0.85
@@ -104,6 +112,7 @@ export async function POST(req: Request) {
             height: typeof pred.height === "string" ? parseFloat(pred.height) : pred.height,
             repairSteps: Array.isArray(pred.suggestions) ? pred.suggestions : [],
             requiredTools: Array.isArray(pred.tools) ? pred.tools : [],
+            estimatedRepairTime: pred.estimated_repair_time || "N/A",
         }
     })
 

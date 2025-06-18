@@ -87,7 +87,9 @@ export function UploadSection() {
       }
 
       if (!res.ok) {
-        toast.error(data.error || data.message || "Something went wrong1")
+        toast.error(data.error || data.message || "Something went wrong!")
+        setIsLoading(false)
+        return
       } else {
         toast.success("Analysis completed successfully!")
         console.log("Redirecting to:", `/results/${data.predictionId}`)

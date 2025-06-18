@@ -13,7 +13,7 @@ interface PageProps {
 }
 
 export default async function Results({ params }: PageProps) {
-  const id = params.id;
+  const id = await params.id;
 
   const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/results/${id}`, {
     cache: "no-store",
