@@ -63,7 +63,7 @@ export async function POST(req: Request) {
     const defectsDetails = JSON.parse(output?.defects_details?.output || "[]")
     const overview = JSON.parse(output?.detection_overview?.output || "{}")
 
-    const defectCount = predictions.length
+    const defectCount = defectsDetails.length
     const totalConfidence = predictions.reduce((sum: number, d: any) => sum + parseFloat(d.confidence || "0"), 0)
     const avgConfidence = defectCount > 0 ? totalConfidence / defectCount : 0
     const pcbName = overview.pcb_name
