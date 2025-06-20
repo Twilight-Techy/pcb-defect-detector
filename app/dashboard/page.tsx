@@ -22,7 +22,7 @@ export default function Dashboard() {
         const user = JSON.parse(userJson)
         const userId = user.id
 
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/dashboard`, {
+        const res = await fetch("/api/dashboard", {
           cache: "no-store",
           headers: {
             "x-user-id": userId,
