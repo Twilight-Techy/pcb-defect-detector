@@ -8,7 +8,10 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata = {
   title: "PCB Defect Detection System",
   description: "AI-powered PCB defect detection and analysis",
-    generator: 'v0.dev'
+  generator: 'v0.dev',
+  icons: {
+    icon: "/icon.png", // relative to /public
+  },
 }
 
 export default function RootLayout({
