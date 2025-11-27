@@ -2,15 +2,15 @@
 -keep class androidx.core.content.FileProvider { <init>(); }
 -keep class androidx.profileinstaller.ProfileInstallReceiver { <init>(); }
 -keep class androidx.startup.InitializationProvider { <init>(); }
+-keep class app.vercel.pcb_defect_detector.twa.Application { <init>(); }
+-keep class app.vercel.pcb_defect_detector.twa.DelegationService { <init>(); }
+-keep class app.vercel.pcb_defect_detector.twa.LauncherActivity { <init>(); }
 -keep class com.google.android.gms.common.api.GoogleApiActivity { <init>(); }
 -keep class com.google.androidbrowserhelper.locationdelegation.PermissionRequestActivity { <init>(); }
 -keep class com.google.androidbrowserhelper.trusted.FocusActivity { <init>(); }
 -keep class com.google.androidbrowserhelper.trusted.ManageDataLauncherActivity { <init>(); }
 -keep class com.google.androidbrowserhelper.trusted.NotificationPermissionRequestActivity { <init>(); }
 -keep class com.google.androidbrowserhelper.trusted.WebViewFallbackActivity { <init>(); }
--keep class com.twilighttechy.pcbdetect.Application { <init>(); }
--keep class com.twilighttechy.pcbdetect.DelegationService { <init>(); }
--keep class com.twilighttechy.pcbdetect.LauncherActivity { <init>(); }
 -keep class android.widget.Space { <init>(android.content.Context, android.util.AttributeSet); }
 
 -keep class androidx.appcompat.app.AlertController$RecycleListView { <init>(android.content.Context, android.util.AttributeSet); }

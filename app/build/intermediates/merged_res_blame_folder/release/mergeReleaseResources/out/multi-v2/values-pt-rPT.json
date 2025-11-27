@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.twilighttechy.pcbdetect.app-mergeReleaseResources-25:/values-pt-rPT/values-pt-rPT.xml",
+            "outputFile": "app.vercel.pcb_defect_detector.twa.app-mergeReleaseResources-25:/values-pt-rPT/values-pt-rPT.xml",
             "map": [
                 {
                     "source": "C:\\Users\\mzone\\.gradle\\caches\\8.11.1\\transforms\\02e37f92c71ffadabef41ae6f5feca22\\transformed\\play-services-base-18.1.0\\res\\values-pt-rPT\\values.xml",

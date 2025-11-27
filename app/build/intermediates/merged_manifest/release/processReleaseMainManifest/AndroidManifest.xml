@@ -22,7 +22,7 @@
      the abbreviated format.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.twilighttechy.pcbdetect"
+    package="app.vercel.pcb_defect_detector.twa"
     android:versionCode="1"
     android:versionName="1" >
 
@@ -45,13 +45,13 @@
     </queries>
 
     <permission
-        android:name="com.twilighttechy.pcbdetect.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+        android:name="app.vercel.pcb_defect_detector.twa.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
         android:protectionLevel="signature" />
 
-    <uses-permission android:name="com.twilighttechy.pcbdetect.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+    <uses-permission android:name="app.vercel.pcb_defect_detector.twa.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
 
     <application
-        android:name="com.twilighttechy.pcbdetect.Application"
+        android:name="app.vercel.pcb_defect_detector.twa.Application"
         android:allowBackup="true"
         android:appComponentFactory="androidx.core.app.CoreComponentFactory"
         android:extractNativeLibs="true"
@@ -86,7 +86,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.twilighttechy.pcbdetect.LauncherActivity"
+            android:name="app.vercel.pcb_defect_detector.twa.LauncherActivity"
             android:alwaysRetainTaskState="true"
             android:exported="true"
             android:label="@string/launcherName" >
@@ -165,7 +165,7 @@
         </provider>
 
         <service
-            android:name="com.twilighttechy.pcbdetect.DelegationService"
+            android:name="app.vercel.pcb_defect_detector.twa.DelegationService"
             android:enabled="@bool/enableNotification"
             android:exported="@bool/enableNotification" >
             <meta-data
@@ -192,7 +192,7 @@
 
         <provider
             android:name="androidx.startup.InitializationProvider"
-            android:authorities="com.twilighttechy.pcbdetect.androidx-startup"
+            android:authorities="app.vercel.pcb_defect_detector.twa.androidx-startup"
             android:exported="false" >
             <meta-data
                 android:name="androidx.emoji2.text.EmojiCompatInitializer"

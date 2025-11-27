@@ -21,11 +21,11 @@ plugins {
 }
 
 def twaManifest = [
-    applicationId: 'com.twilighttechy.pcbdetect',
+    applicationId: 'app.vercel.pcb_defect_detector.twa',
     hostName: 'pcb-defect-detector.vercel.app', // The domain being opened in the TWA.
     launchUrl: '/', // The start path for the TWA. Must be relative to the domain.
-    name: 'PCB Defect Detector', // The application name.
-    launcherName: 'PCBDetect', // The name shown on the Android Launcher.
+    name: 'LASU PCB Defect Detector', // The application name.
+    launcherName: 'LASU Detect', // The name shown on the Android Launcher.
     themeColor: '#00E5E5', // The color used for the status bar.
     themeColorDark: '#000000', // The color used for the dark status bar.
     navigationColor: '#000000', // The color used for the navigation bar.
@@ -52,9 +52,9 @@ def twaManifest = [
 
 android {
     compileSdkVersion 36
-    namespace "com.twilighttechy.pcbdetect"
+    namespace "app.vercel.pcb_defect_detector.twa"
     defaultConfig {
-        applicationId "com.twilighttechy.pcbdetect"
+        applicationId "app.vercel.pcb_defect_detector.twa"
         minSdkVersion 21
         targetSdkVersion 35
         versionCode 1

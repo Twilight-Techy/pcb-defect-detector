@@ -4,7 +4,7 @@
     "type": "BUNDLE",
     "kind": "RegularFile"
   },
-  "applicationId": "com.twilighttechy.pcbdetect",
+  "applicationId": "app.vercel.pcb_defect_detector.twa",
   "variantName": "release",
   "elements": [
     {

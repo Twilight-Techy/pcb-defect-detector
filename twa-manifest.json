@@ -1,8 +1,8 @@
 {
-  "packageId": "com.twilighttechy.pcbdetect",
+  "packageId": "app.vercel.pcb_defect_detector.twa",
   "host": "pcb-defect-detector.vercel.app",
-  "name": "PCB Defect Detector",
-  "launcherName": "PCBDetect",
+  "name": "LASU PCB Defect Detector",
+  "launcherName": "LASU Detect",
   "display": "standalone",
   "themeColor": "#00E5E5",
   "themeColorDark": "#000000",

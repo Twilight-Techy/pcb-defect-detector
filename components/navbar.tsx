@@ -32,9 +32,9 @@ export function Navbar() {
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           <Link href="/" className="flex items-center space-x-2">
-            <CircuitBoard className="h-8 w-8 text-[#00E5E5]" />
+            <img src="/icon.png" alt="Logo" className="h-8 w-8" />
             <span className="font-bold text-xl text-white">
-              PCB<span className="text-[#B347FF]">Detect</span>
+              LASU PCB <span className="text-[#00E5E5]">Defect Detector</span>
             </span>
           </Link>
 
