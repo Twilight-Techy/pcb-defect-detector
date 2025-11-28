@@ -12,7 +12,7 @@ export const metadata = {
   description: "AI-powered PCB defect detection and analysis",
   creator: 'imaks.ai',
   icons: {
-    icon: "/icon.png", // relative to /public
+    icon: "/icon-v2.png", // relative to /public
   },
 }
 

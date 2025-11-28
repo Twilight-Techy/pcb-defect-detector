@@ -13,15 +13,15 @@
   "backgroundColor": "#0F172A",
   "enableNotifications": true,
   "startUrl": "/",
-  "iconUrl": "https://pcb-defect-detector.vercel.app/icon.png",
-  "maskableIconUrl": "https://pcb-defect-detector.vercel.app/icon.png",
+  "iconUrl": "https://pcb-defect-detector.vercel.app/icon-v2.png",
+  "maskableIconUrl": "https://pcb-defect-detector.vercel.app/icon-v2.png",
   "splashScreenFadeOutDuration": 300,
   "signingKey": {
     "path": "C:\\Users\\mzone\\Desktop\\MyProjects\\pcb-defect-detector\\android.keystore",
     "alias": "android"
   },
-  "appVersionName": "1",
-  "appVersionCode": 1,
+  "appVersionName": "2",
+  "appVersionCode": 2,
   "shortcuts": [],
   "generatorApp": "bubblewrap-cli",
   "webManifestUrl": "https://pcb-defect-detector.vercel.app/manifest.json",
@@ -47,5 +47,5 @@
   "fileHandlers": [],
   "launchHandlerClientMode": "",
   "displayOverride": [],
-  "appVersion": "1"
+  "appVersion": "2"
 }
