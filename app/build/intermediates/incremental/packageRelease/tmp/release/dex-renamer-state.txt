@@ -1,4 +1,0 @@
-#Thu Nov 27 18:11:55 WAT 2025
-base.0=C\:\\Users\\mzone\\Desktop\\MyProjects\\pcb-defect-detector\\app\\build\\intermediates\\dex\\release\\minifyReleaseWithR8\\classes.dex
-renamed.0=classes.dex
-path.0=classes.dex

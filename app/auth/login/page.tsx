@@ -41,7 +41,8 @@ export default function LoginPage() {
       <div className="lg:p-8">
         <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
           <div className="flex flex-col space-y-2 text-center">
-            <h1 className="text-2xl font-semibold tracking-tight text-[#00E5E5]">Welcome back</h1>
+            <img src="/icon-v2.png" alt="Logo" className="h-12 w-12 mx-auto" />
+            <h1 className="text-2xl font-semibold tracking-tight text-[#00E5E5]">Welcome to LASU Detect</h1>
             <p className="text-sm text-muted-foreground">Enter your credentials to sign in to your account</p>
           </div>
           <LoginForm />
