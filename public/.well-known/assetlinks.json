@@ -5,7 +5,7 @@
         ],
         "target": {
             "namespace": "android_app",
-            "package_name": "com.twilighttechy.pcbdetect",
+            "package_name": "app.vercel.pcb_defect_detector.twa",
             "sha256_cert_fingerprints": [
                 "9A:DE:28:9F:95:39:C1:12:04:5A:38:75:29:C5:56:B0:F2:71:BB:07:A7:7A:7A:5F:A6:CB:4C:01:6F:8E:56:5F"
             ]
