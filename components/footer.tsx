@@ -107,7 +107,7 @@ export function Footer() {
         </div>
 
         <div className="border-t border-[#00E5E5]/20 mt-12 pt-8 text-center text-gray-400">
-          <p>© {new Date().getFullYear()} PCBDetect. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} LASU Detect. All rights reserved.</p>
         </div>
       </div>
     </footer>
