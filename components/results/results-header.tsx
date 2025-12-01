@@ -18,7 +18,7 @@ export function ResultsHeader({ id, name, createdAt, defectsCount, severity, sta
     <div className="mb-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
         <div>
-          <h1 className="text-3xl font-bold text-[#00E5E5] mb-2">Analysis Results</h1>
+          <h1 className="text-3xl font-bold text-[#00E5E5] mb-2">LASU Detect Analysis Results</h1>
           <div className="flex items-center text-gray-400 mb-2">
             <CircuitBoard className="h-4 w-4 mr-2" />
             <span className="font-medium text-white">{name}</span>

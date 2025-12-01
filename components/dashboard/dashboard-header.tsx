@@ -24,7 +24,7 @@ export function DashboardHeader({ stats, scans }: DashboardHeaderProps) {
   return (
     <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
       <div>
-        <h1 className="text-3xl font-bold text-[#00E5E5] mb-2">PCB Analysis Dashboard</h1>
+        <h1 className="text-3xl font-bold text-[#00E5E5] mb-2">LASU Detect PCB Analysis Dashboard</h1>
         <p className="text-gray-400">Monitor defect detection metrics and historical data</p>
       </div>
 
