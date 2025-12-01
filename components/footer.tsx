@@ -8,9 +8,9 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="md:col-span-1">
             <Link href="/" className="flex items-center space-x-2 mb-4">
-              <CircuitBoard className="h-8 w-8 text-[#00E5E5]" />
+              <img src="/icon-v2.png" alt="Logo" className="h-8 w-8" />
               <span className="font-bold text-xl text-white">
-                PCB<span className="text-[#B347FF]">Detect</span>
+                LASU <span className="text-[#00E5E5]">Detect</span>
               </span>
             </Link>
             <p className="text-gray-400 mb-4">Advanced AI-powered PCB defect detection and analysis system.</p>
