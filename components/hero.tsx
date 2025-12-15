@@ -14,7 +14,7 @@ export function Hero() {
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-3xl mx-auto text-center">
           <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-[#00E5E5] to-[#B347FF]">
-            LASU PCB Defect Detector
+            LASU Detect
           </h1>
           <p className="text-xl text-gray-300 mb-8">
             Detect, analyze, and fix PCB defects with advanced AI technology. Our system provides explainable results,
